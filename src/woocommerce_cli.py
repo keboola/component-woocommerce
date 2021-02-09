@@ -1,9 +1,5 @@
 import datetime
-import functools
-import json
-import logging
 
-from typing import List
 from woocommerce import API
 
 
@@ -11,13 +7,15 @@ RESULTS_PER_PAGE = 100
 
 
 class WooCommerceClient:
-
-    def __init__(self, url: str, consumer_key: str, consumer_secret: str, version: str = 'wc/v3'):
+    def __init__(
+        self, url: str, consumer_key: str, consumer_secret: str, version: str = "wc/v3"
+    ):
         self.session = API(
             url=url,
             consumer_key=consumer_key,
             consumer_secret=consumer_secret,
-            version=version)
+            version=version,
+        )
 
     def _fetch_data(self, endpoint, params):
         """
@@ -28,47 +26,60 @@ class WooCommerceClient:
         response = self.session.get(endpoint, params=params)
         if response.status_code == 200:
             data = response.json()
-            total_pages = int(response.headers.get('X-WP-TotalPages', 1))
-            while  page_count < total_pages:
+            total_pages = int(response.headers.get("X-WP-TotalPages", 1))
+            while page_count < total_pages:
                 page_count += 1
-                params['page'] = page_count
+                params["page"] = page_count
                 response = self.session.get(endpoint, params=params)
                 if response.status_code == 200:
                     data.append(response.json())
         return data
 
-    def get_orders(self, date_from: str = '',
+    def get_orders(
+        self,
+        date_from: str = "",
         date_to: str = datetime.datetime.utcnow().replace(microsecond=0).isoformat(),
-        status: str = 'any',
-        per_page: int = RESULTS_PER_PAGE):
+        status: str = "any",
+        per_page: int = RESULTS_PER_PAGE,
+    ):
         """
         Get all orders
 
         after: str: date_from
         before: str: date_to
         """
-        params = {'per_page': per_page, 'status': status,
-                'after': date_from, 'before': date_to}
-        orders = self._fetch_data('orders', params)
+        params = {
+            "per_page": per_page,
+            "status": status,
+            "after": date_from,
+            "before": date_to,
+        }
+        orders = self._fetch_data("orders", params)
         return orders
 
-    def get_products(self, date_from: str = '',
+    def get_products(
+        self,
+        date_from: str = "",
         date_to: str = datetime.datetime.utcnow().replace(microsecond=0).isoformat(),
-        status: str = 'any',
-        per_page: int = RESULTS_PER_PAGE
+        status: str = "any",
+        per_page: int = RESULTS_PER_PAGE,
     ):
         """
         Get all products
         """
-        params = {'per_page': per_page, 'status': status,
-                'after': date_from, 'before': date_to}
-        products = self._fetch_data('products', params)
+        params = {
+            "per_page": per_page,
+            "status": status,
+            "after": date_from,
+            "before": date_to,
+        }
+        products = self._fetch_data("products", params)
         return products
 
     def get_customers(self, per_page: int = RESULTS_PER_PAGE):
         """
         Get all customers
         """
-        params = {'per_page': per_page}
-        customers = self._fetch_data('customers', params)
+        params = {"per_page": per_page}
+        customers = self._fetch_data("customers", params)
         return customers
