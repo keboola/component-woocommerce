@@ -1,3 +1,4 @@
+from typing import List
 from kbc.result import ResultWriter, KBCTableDef
 
 EXTRACTION_TIME = "extraction_time"
@@ -9,7 +10,7 @@ class MetadataWriter(ResultWriter):
         self,
         result_dir_path,
         extraction_time,
-        additional_pk: list = None,
+        additional_pk: List[str] = None,
         prefix="",
         file_headers=None,
     ) -> None:
@@ -38,7 +39,7 @@ class FeeLinesWriter(ResultWriter):
         self,
         result_dir_path,
         extraction_time,
-        additional_pk: list = None,
+        additional_pk: List[str] = None,
         prefix="",
         file_headers=None,
     ) -> None:
@@ -67,7 +68,7 @@ class RefundsWriter(ResultWriter):
         self,
         result_dir_path,
         extraction_time,
-        additional_pk: list = None,
+        additional_pk: List[str] = None,
         prefix="",
         file_headers=None,
     ) -> None:
@@ -91,13 +92,13 @@ class RefundsWriter(ResultWriter):
         self.result_dir_path = result_dir_path
 
 
-class LineItemWriter(ResultWriter):
+class LineItemsWriter(ResultWriter):
     def __init__(
         self,
         result_dir_path,
         extraction_time,
-        additional_pk: list = None,
-        prefix="",
+        additional_pk: List[str] = None,
+        prefix: str = "",
         file_headers=None,
     ):
         pk = ["id"]
@@ -117,16 +118,15 @@ class LineItemWriter(ResultWriter):
             child_separator="__",
         )
         self.extraction_time = extraction_time
-
         self.result_dir_path = result_dir_path
-
-        # tax_lines writer
-        self.tax_lines_writer = ResultWriter(
+        primary_keys = pk + ["line_item_id"]
+        # taxes writer
+        self.taxes_writer = ResultWriter(
             result_dir_path,
             KBCTableDef(
-                name=f"{prefix}line_items_tax_lines",
-                pk=[KEY_ROW_NR, "line_item_id"],
-                columns=file_headers.get(f"{prefix}line_items_tax_lines.csv", []),
+                name=f"{prefix}line_items_taxes",
+                pk=primary_keys,
+                columns=file_headers.get(f"{prefix}line_items_taxes.csv", []),
                 destination="",
             ),
             flatten_objects=True,
@@ -138,7 +138,7 @@ class LineItemWriter(ResultWriter):
             result_dir_path,
             KBCTableDef(
                 name=f"{prefix}line_items_meta_data",
-                pk=[KEY_ROW_NR, "line_item_id"],
+                pk=primary_keys,
                 columns=file_headers.get(f"{prefix}line_items_meta_data.csv", []),
                 destination="",
             ),
@@ -157,37 +157,28 @@ class LineItemWriter(ResultWriter):
     ):
         # flatten obj
         line_item_id = data["id"]
-
-        for idx, el in enumerate(data.pop("tax_lines", [])):
-            el[KEY_ROW_NR] = idx
-            self.tax_lines_writer.write(
-                el,
-                user_values={
-                    "line_item_id": line_item_id,
-                    EXTRACTION_TIME: self.extraction_time,
-                },
-            )
-        for idx, el in enumerate(data.pop("meta_data", [])):
-            el[KEY_ROW_NR] = idx
-            self.meta_data_writer.write(
-                el,
-                user_values={
-                    "line_item_id": line_item_id,
-                    EXTRACTION_TIME: self.extraction_time,
-                },
-            )
+        taxes = data.pop("taxes", [])
+        meta_data = data.pop("meta_data", [])
+        self.taxes_writer.write_all(
+            taxes,
+            user_values={**user_values, "line_item_id": line_item_id, EXTRACTION_TIME: self.extraction_time},
+        )
+        self.meta_data_writer.write_all(
+            meta_data,
+            user_values={**user_values, "line_item_id": line_item_id, EXTRACTION_TIME: self.extraction_time},
+        )
 
         super().write(data, file_name, user_values, object_from_arrays, write_header)
 
     def collect_results(self):
         results = []
-        results.extend(self.tax_lines_writer.collect_results())
+        results.extend(self.taxes_writer.collect_results())
         results.extend(self.meta_data_writer.collect_results())
         results.extend(super().collect_results())
         return results
 
     def close(self):
-        self.tax_lines_writer.close()
+        self.taxes_writer.close()
         self.meta_data_writer.close()
         super().close()
 
@@ -218,15 +209,14 @@ class TaxLinesWriter(ResultWriter):
             child_separator="__",
         )
         self.extraction_time = extraction_time
-
         self.result_dir_path = result_dir_path
-
+        primary_keys = pk + ['tax_lines_id']
         # meta_data writer
         self.meta_data_writer = ResultWriter(
             result_dir_path,
             KBCTableDef(
                 name=f"{prefix}tax_lines_meta_data",
-                pk=[KEY_ROW_NR, "line_item_id"],
+                pk=primary_keys,
                 columns=file_headers.get(f"{prefix}tax_lines_meta_data.csv", []),
                 destination="",
             ),
@@ -244,17 +234,12 @@ class TaxLinesWriter(ResultWriter):
         write_header=True,
     ):
         # flatten obj
-        shipping_line_id = data["id"]
-
-        for idx, el in enumerate(data.pop("meta_data", [])):
-            el[KEY_ROW_NR] = idx
-            self.meta_data_writer.write(
-                el,
-                user_values={
-                    "tax_lines_id": shipping_line_id,
-                    EXTRACTION_TIME: self.extraction_time,
-                },
-            )
+        tax_lines_id = data["id"]
+        meta_data = data.pop("meta_data", [])
+        self.meta_data_writer.write_all(
+            meta_data,
+            user_values={**user_values, "tax_lines_id": tax_lines_id, EXTRACTION_TIME: self.extraction_time},
+        )
 
         super().write(data, file_name, user_values, object_from_arrays, write_header)
 
@@ -299,11 +284,12 @@ class ShippingLinesWriter(ResultWriter):
         self.result_dir_path = result_dir_path
 
         # tax_lines writer
+        primary_keys = pk + ["shipping_lines_id"]
         self.taxes_writer = ResultWriter(
             result_dir_path,
             KBCTableDef(
                 name=f"{prefix}shipping_lines_taxes",
-                pk=[KEY_ROW_NR, "line_item_id"],
+                pk=primary_keys,
                 columns=file_headers.get(f"{prefix}shipping_lines_taxes.csv", []),
                 destination="",
             ),
@@ -317,7 +303,7 @@ class ShippingLinesWriter(ResultWriter):
             result_dir_path,
             KBCTableDef(
                 name=f"{prefix}shipping_lines_meta_data",
-                pk=[KEY_ROW_NR, "line_item_id"],
+                pk=primary_keys,
                 columns=file_headers.get(f"{prefix}shipping_lines_meta_data.csv", []),
                 destination="",
             ),
@@ -336,26 +322,17 @@ class ShippingLinesWriter(ResultWriter):
     ):
         # flatten obj
         shipping_line_id = data["id"]
+        taxes = data.pop("taxes", [])
+        meta_data = data.pop('meta_data', [])
 
-        for idx, el in enumerate(data.pop("taxes", [])):
-            el[KEY_ROW_NR] = idx
-            self.taxes_writer.write(
-                el,
-                user_values={
-                    "shipping_line_id": shipping_line_id,
-                    EXTRACTION_TIME: self.extraction_time,
-                },
-            )
-        for idx, el in enumerate(data.pop("meta_data", [])):
-            el[KEY_ROW_NR] = idx
-            self.meta_data_writer.write(
-                el,
-                user_values={
-                    "shipping_line_id": shipping_line_id,
-                    EXTRACTION_TIME: self.extraction_time,
-                },
-            )
-
+        self.taxes_writer.write_all(
+            taxes,
+            user_values={**user_values, "shipping_lines_id": shipping_line_id, EXTRACTION_TIME: self.extraction_time},
+        )
+        self.meta_data_writer.write_all(
+            meta_data,
+            user_values={**user_values, "shipping_lines_id": shipping_line_id, EXTRACTION_TIME: self.extraction_time},
+        )
         super().write(data, file_name, user_values, object_from_arrays, write_header)
 
     def collect_results(self):
@@ -399,13 +376,13 @@ class CouponLinesWriter(ResultWriter):
         self.extraction_time = extraction_time
 
         self.result_dir_path = result_dir_path
-
-        self.coupon_meta_data_writer = ResultWriter(
+        primary_keys = pk + ['coupon_lines_id']
+        self.meta_data_writer = ResultWriter(
             result_dir_path,
             KBCTableDef(
-                name=f"{prefix}coupon_meta_data",
-                pk=pk,
-                columns=file_headers.get(f"{prefix}coupon_meta_data.csv", []),
+                name=f"{prefix}coupon_lines_meta_data",
+                pk=primary_keys,
+                columns=file_headers.get(f"{prefix}coupon_lines_meta_data.csv", []),
                 destination="",
             ),
             flatten_objects=True,
@@ -422,28 +399,23 @@ class CouponLinesWriter(ResultWriter):
         write_header=True,
     ):
         # flatten obj
-        coupon_meta_data_id = data["id"]
-
-        for idx, el in enumerate(data.pop("meta_data", [])):
-            el[KEY_ROW_NR] = idx
-            self.coupon_meta_data_writer.write(
-                el,
-                user_values={
-                    "coupon_meta_data_id": coupon_meta_data_id,
-                    EXTRACTION_TIME: self.extraction_time,
-                },
-            )
+        coupon_lines_id = data["id"]
+        meta_data = data.pop('meta_data', [])
+        self.meta_data_writer.write_all(
+            meta_data,
+            user_values={**user_values, "coupon_lines_id": coupon_lines_id, EXTRACTION_TIME: self.extraction_time},
+        )
 
         super().write(data, file_name, user_values, object_from_arrays, write_header)
 
     def collect_results(self):
         results = []
-        results.extend(self.coupon_meta_data_writer.collect_results())
+        results.extend(self.meta_data_writer.collect_results())
         results.extend(super().collect_results())
         return results
 
     def close(self):
-        self.coupon_meta_data_writer.close()
+        self.meta_data_writer.close()
         super().close()
 
 
@@ -467,7 +439,7 @@ class OrdersWriter(ResultWriter):
         self.user_value_cols = ["extraction_time"]
         self.result_dir_path = result_dir_path
 
-        self.line_items_writer = LineItemWriter(
+        self.line_items_writer = LineItemsWriter(
             result_dir_path,
             extraction_time,
             additional_pk=["order_id"],
@@ -528,7 +500,8 @@ class OrdersWriter(ResultWriter):
         write_header=True,
     ):
         excludes = ["_links", "customer_user_agent"]
-        map(lambda field: data.pop(field), excludes)
+        for field in excludes:
+            data.pop(field)
         order_id = data["id"]
         line_items = data.pop("line_items", [])
         tax_lines = data.pop("self.tax_lines_writer", [])
@@ -612,6 +585,13 @@ class CustomersWriter(ResultWriter):
             flatten_objects=True,
             child_separator="__",
         )
+        self.meta_data_writer = MetadataWriter(
+            result_dir_path,
+            extraction_time,
+            additional_pk=["customer_id"],
+            file_headers=file_headers,
+            prefix="customers_",
+        )
         self.extraction_time = extraction_time
         self.user_value_cols = ["extraction_time"]
         self.result_dir_path = result_dir_path
@@ -625,7 +605,14 @@ class CustomersWriter(ResultWriter):
         write_header=True,
     ):
         excludes = ["_links"]
-        map(lambda field: data.pop(field), excludes)
+        for field in excludes:
+            data.pop(field)
+        customer_id = data.get('id')
+        meta_data = data.pop('meta_data', [])
+        self.meta_data_writer.write_all(
+            meta_data,
+            user_values={"customer_id": customer_id, EXTRACTION_TIME: self.extraction_time},
+        )
         super().write(
             data,
             file_name=file_name,
@@ -634,6 +621,15 @@ class CustomersWriter(ResultWriter):
             write_header=write_header,
         )
 
+    def collect_results(self):
+        results = []
+        results.extend(self.meta_data_writer.collect_results())
+        results.extend(super().collect_results())
+        return results
+
+    def close(self):
+        self.meta_data_writer.close()
+        super().close()
 
 class ProductsWriter(ResultWriter):
     def __init__(
@@ -646,11 +642,12 @@ class ProductsWriter(ResultWriter):
         client=None,
     ):
         self.client = client
+        pk = ["id"]
         super().__init__(
             result_dir_path,
             table_def=KBCTableDef(
                 name=result_name,
-                pk=["id"],
+                pk=pk,
                 columns=file_headers.get("products.csv", []),
                 destination="",
             ),
@@ -661,12 +658,12 @@ class ProductsWriter(ResultWriter):
         self.extraction_time = extraction_time
         self.user_value_cols = ["extraction_time"]
         self.result_dir_path = result_dir_path
-
+        primary_keys = pk + ["product_id"]
         self.categories_writer = ResultWriter(
             result_dir_path,
             KBCTableDef(
                 name=f"{prefix}categories",
-                pk=["id", "product_id"],
+                pk=primary_keys,
                 columns=file_headers.get(f"{prefix}categories.csv", []),
                 destination="",
             ),
@@ -679,7 +676,7 @@ class ProductsWriter(ResultWriter):
             result_dir_path,
             KBCTableDef(
                 name=f"{prefix}images",
-                pk=["id", "product_id"],
+                pk=primary_keys,
                 columns=file_headers.get(f"{prefix}images.csv", []),
                 destination="",
             ),
@@ -692,7 +689,7 @@ class ProductsWriter(ResultWriter):
             result_dir_path,
             KBCTableDef(
                 name=f"{prefix}attributes",
-                pk=["id", "product_id"],
+                pk=primary_keys,
                 columns=file_headers.get(f"{prefix}attributes.csv", []),
                 destination="",
             ),
@@ -705,7 +702,7 @@ class ProductsWriter(ResultWriter):
             result_dir_path,
             KBCTableDef(
                 name=f"{prefix}default_attributes",
-                pk=["id", "product_id"],
+                pk=primary_keys,
                 columns=file_headers.get(f"{prefix}default_attributes.csv", []),
                 destination="",
             ),
@@ -718,7 +715,7 @@ class ProductsWriter(ResultWriter):
             result_dir_path,
             KBCTableDef(
                 name=f"{prefix}tags",
-                pk=["id", "product_id"],
+                pk=primary_keys,
                 columns=file_headers.get(f"{prefix}tags.csv", []),
                 destination="",
             ),
@@ -747,62 +744,36 @@ class ProductsWriter(ResultWriter):
         map(lambda field: data.pop(field), excludes)
         for field in excludes:
             data.pop(field)
-        for idx, el in enumerate(data.pop("categories", [])):
-            el[KEY_ROW_NR] = idx
-            self.categories_writer.write(
-                el,
-                user_values={
-                    "product_id": product_id,
-                    EXTRACTION_TIME: self.extraction_time,
-                },
-            )
-        for idx, el in enumerate(data.pop("images", [])):
-            el[KEY_ROW_NR] = idx
-            self.images_writer.write(
-                el,
-                user_values={
-                    "product_id": product_id,
-                    EXTRACTION_TIME: self.extraction_time,
-                },
-            )
-        for idx, el in enumerate(data.pop("attributes", [])):
-            el[KEY_ROW_NR] = idx
-            self.attributes_writer.write(
-                el,
-                user_values={
-                    "product_id": product_id,
-                    EXTRACTION_TIME: self.extraction_time,
-                },
-            )
-
-        for idx, el in enumerate(data.pop("default_attributes", [])):
-            el[KEY_ROW_NR] = idx
-            self.default_attributes_writer.write(
-                el,
-                user_values={
-                    "product_id": product_id,
-                    EXTRACTION_TIME: self.extraction_time,
-                },
-            )
-
-        for idx, el in enumerate(data.pop("tags", [])):
-            el[KEY_ROW_NR] = idx
-            self.tags_writer.write(
-                el,
-                user_values={
-                    "product_id": product_id,
-                    EXTRACTION_TIME: self.extraction_time,
-                },
-            )
-        for idx, el in enumerate(data.pop("meta_data", [])):
-            el[KEY_ROW_NR] = idx
-            self.meta_data_writer.write(
-                el,
-                user_values={
-                    "product_id": product_id,
-                    EXTRACTION_TIME: self.extraction_time,
-                },
-            )
+        categories = data.pop("categories", [])
+        images = data.pop("images", [])
+        attributes = data.pop("attributes", [])
+        default_attributes = data.pop("default_attributes", [])
+        meta_data = data.pop("meta_data", [])
+        tags = data.pop("tags", [])
+        self.categories_writer.write_all(
+            categories,
+            user_values={"product_id": product_id, EXTRACTION_TIME: self.extraction_time},
+        )
+        self.images_writer.write_all(
+            images,
+            user_values={"product_id": product_id, EXTRACTION_TIME: self.extraction_time},
+        )
+        self.attributes_writer.write_all(
+            attributes,
+            user_values={"product_id": product_id, EXTRACTION_TIME: self.extraction_time},
+        )
+        self.default_attributes_writer.write_all(
+            default_attributes,
+            user_values={"product_id": product_id, EXTRACTION_TIME: self.extraction_time},
+        )
+        self.tags_writer.write_all(
+            tags,
+            user_values={"product_id": product_id, EXTRACTION_TIME: self.extraction_time},
+        )
+        self.meta_data_writer.write_all(
+            meta_data,
+            user_values={"product_id": product_id, EXTRACTION_TIME: self.extraction_time},
+        )
         super().write(data, file_name, user_values, object_from_arrays, write_header)
 
     def collect_results(self):
