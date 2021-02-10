@@ -161,11 +161,19 @@ class LineItemsWriter(ResultWriter):
         meta_data = data.pop("meta_data", [])
         self.taxes_writer.write_all(
             taxes,
-            user_values={**user_values, "line_item_id": line_item_id, EXTRACTION_TIME: self.extraction_time},
+            user_values={
+                **user_values,
+                "line_item_id": line_item_id,
+                EXTRACTION_TIME: self.extraction_time,
+            },
         )
         self.meta_data_writer.write_all(
             meta_data,
-            user_values={**user_values, "line_item_id": line_item_id, EXTRACTION_TIME: self.extraction_time},
+            user_values={
+                **user_values,
+                "line_item_id": line_item_id,
+                EXTRACTION_TIME: self.extraction_time,
+            },
         )
 
         super().write(data, file_name, user_values, object_from_arrays, write_header)
@@ -210,7 +218,7 @@ class TaxLinesWriter(ResultWriter):
         )
         self.extraction_time = extraction_time
         self.result_dir_path = result_dir_path
-        primary_keys = pk + ['tax_lines_id']
+        primary_keys = pk + ["tax_lines_id"]
         # meta_data writer
         self.meta_data_writer = ResultWriter(
             result_dir_path,
@@ -238,7 +246,11 @@ class TaxLinesWriter(ResultWriter):
         meta_data = data.pop("meta_data", [])
         self.meta_data_writer.write_all(
             meta_data,
-            user_values={**user_values, "tax_lines_id": tax_lines_id, EXTRACTION_TIME: self.extraction_time},
+            user_values={
+                **user_values,
+                "tax_lines_id": tax_lines_id,
+                EXTRACTION_TIME: self.extraction_time,
+            },
         )
 
         super().write(data, file_name, user_values, object_from_arrays, write_header)
@@ -323,15 +335,23 @@ class ShippingLinesWriter(ResultWriter):
         # flatten obj
         shipping_line_id = data["id"]
         taxes = data.pop("taxes", [])
-        meta_data = data.pop('meta_data', [])
+        meta_data = data.pop("meta_data", [])
 
         self.taxes_writer.write_all(
             taxes,
-            user_values={**user_values, "shipping_lines_id": shipping_line_id, EXTRACTION_TIME: self.extraction_time},
+            user_values={
+                **user_values,
+                "shipping_lines_id": shipping_line_id,
+                EXTRACTION_TIME: self.extraction_time,
+            },
         )
         self.meta_data_writer.write_all(
             meta_data,
-            user_values={**user_values, "shipping_lines_id": shipping_line_id, EXTRACTION_TIME: self.extraction_time},
+            user_values={
+                **user_values,
+                "shipping_lines_id": shipping_line_id,
+                EXTRACTION_TIME: self.extraction_time,
+            },
         )
         super().write(data, file_name, user_values, object_from_arrays, write_header)
 
@@ -376,7 +396,7 @@ class CouponLinesWriter(ResultWriter):
         self.extraction_time = extraction_time
 
         self.result_dir_path = result_dir_path
-        primary_keys = pk + ['coupon_lines_id']
+        primary_keys = pk + ["coupon_lines_id"]
         self.meta_data_writer = ResultWriter(
             result_dir_path,
             KBCTableDef(
@@ -400,10 +420,14 @@ class CouponLinesWriter(ResultWriter):
     ):
         # flatten obj
         coupon_lines_id = data["id"]
-        meta_data = data.pop('meta_data', [])
+        meta_data = data.pop("meta_data", [])
         self.meta_data_writer.write_all(
             meta_data,
-            user_values={**user_values, "coupon_lines_id": coupon_lines_id, EXTRACTION_TIME: self.extraction_time},
+            user_values={
+                **user_values,
+                "coupon_lines_id": coupon_lines_id,
+                EXTRACTION_TIME: self.extraction_time,
+            },
         )
 
         super().write(data, file_name, user_values, object_from_arrays, write_header)
@@ -607,11 +631,14 @@ class CustomersWriter(ResultWriter):
         excludes = ["_links"]
         for field in excludes:
             data.pop(field)
-        customer_id = data.get('id')
-        meta_data = data.pop('meta_data', [])
+        customer_id = data.get("id")
+        meta_data = data.pop("meta_data", [])
         self.meta_data_writer.write_all(
             meta_data,
-            user_values={"customer_id": customer_id, EXTRACTION_TIME: self.extraction_time},
+            user_values={
+                "customer_id": customer_id,
+                EXTRACTION_TIME: self.extraction_time,
+            },
         )
         super().write(
             data,
@@ -630,6 +657,7 @@ class CustomersWriter(ResultWriter):
     def close(self):
         self.meta_data_writer.close()
         super().close()
+
 
 class ProductsWriter(ResultWriter):
     def __init__(
@@ -752,27 +780,45 @@ class ProductsWriter(ResultWriter):
         tags = data.pop("tags", [])
         self.categories_writer.write_all(
             categories,
-            user_values={"product_id": product_id, EXTRACTION_TIME: self.extraction_time},
+            user_values={
+                "product_id": product_id,
+                EXTRACTION_TIME: self.extraction_time,
+            },
         )
         self.images_writer.write_all(
             images,
-            user_values={"product_id": product_id, EXTRACTION_TIME: self.extraction_time},
+            user_values={
+                "product_id": product_id,
+                EXTRACTION_TIME: self.extraction_time,
+            },
         )
         self.attributes_writer.write_all(
             attributes,
-            user_values={"product_id": product_id, EXTRACTION_TIME: self.extraction_time},
+            user_values={
+                "product_id": product_id,
+                EXTRACTION_TIME: self.extraction_time,
+            },
         )
         self.default_attributes_writer.write_all(
             default_attributes,
-            user_values={"product_id": product_id, EXTRACTION_TIME: self.extraction_time},
+            user_values={
+                "product_id": product_id,
+                EXTRACTION_TIME: self.extraction_time,
+            },
         )
         self.tags_writer.write_all(
             tags,
-            user_values={"product_id": product_id, EXTRACTION_TIME: self.extraction_time},
+            user_values={
+                "product_id": product_id,
+                EXTRACTION_TIME: self.extraction_time,
+            },
         )
         self.meta_data_writer.write_all(
             meta_data,
-            user_values={"product_id": product_id, EXTRACTION_TIME: self.extraction_time},
+            user_values={
+                "product_id": product_id,
+                EXTRACTION_TIME: self.extraction_time,
+            },
         )
         super().write(data, file_name, user_values, object_from_arrays, write_header)
 
