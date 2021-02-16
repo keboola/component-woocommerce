@@ -19,13 +19,21 @@ CONSUMER_KEY = "#consumer_key"
 CONSUMER_SECRET = "#consumer_secret"
 DATE_FROM = "date_from"
 DATE_TO = "date_to"
-ENDPOINT = 'endpoint'
-KEY_INCREMENTAL = 'load_type'
+ENDPOINT = "endpoint"
+KEY_INCREMENTAL = "load_type"
 # #### Keep for debug
 KEY_DEBUG = "debug"
 
 # list of mandatory parameters => if some is missing, component will fail with readable message on initialization.
-MANDATORY_PARS = [STORE_URL, CONSUMER_KEY, CONSUMER_SECRET, DATE_FROM, DATE_TO, ENDPOINT, KEY_INCREMENTAL]
+MANDATORY_PARS = [
+    STORE_URL,
+    CONSUMER_KEY,
+    CONSUMER_SECRET,
+    DATE_FROM,
+    DATE_TO,
+    ENDPOINT,
+    KEY_INCREMENTAL,
+]
 # MANDATORY_PARS = [KEY_DEBUG]
 MANDATORY_IMAGE_PARS = []
 
@@ -85,10 +93,10 @@ class Component(KBCEnvHandler):
         )
         results = []
         logging.info(f"Getting data {start_date}")
-        endpoints = params.get('endpoint', ['Orders', 'Products', 'Customers'])
+        endpoints = params.get("endpoint", ["Orders", "Products", "Customers"])
         for endpoint in endpoints:
             if endpoint.lower() == "orders":
-                logging.info('Downloading Orders')
+                logging.info("Downloading Orders")
                 results.extend(
                     self.download_orders(
                         start_date.replace(microsecond=0).isoformat(),
@@ -97,7 +105,7 @@ class Component(KBCEnvHandler):
                     )
                 )
             if endpoint.lower() == "products":
-                logging.info('Downloading Products')
+                logging.info("Downloading Products")
                 results.extend(
                     self.download_products(
                         start_date.replace(microsecond=0).isoformat(),
@@ -106,7 +114,7 @@ class Component(KBCEnvHandler):
                     )
                 )
             if endpoint.lower() == "customers":
-                logging.info('Downloading Customers')
+                logging.info("Downloading Customers")
                 results.extend(self.download_customers(last_state))
 
         # get current columns and store in state

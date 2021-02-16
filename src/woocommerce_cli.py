@@ -6,13 +6,20 @@ from woocommerce import API
 
 RESULTS_PER_PAGE = 100
 
+
 # 401, 500
 class UnauthorizedError(Exception):
     pass
 
+
 class WooCommerceClient:
     def __init__(
-        self, url: str, consumer_key: str, consumer_secret: str, version: str = "wc/v3", authenticate: bool = True
+        self,
+        url: str,
+        consumer_key: str,
+        consumer_secret: str,
+        version: str = "wc/v3",
+        authenticate: bool = True,
     ):
         self.session = API(
             url=url,
@@ -21,9 +28,9 @@ class WooCommerceClient:
             version=version,
         )
         if authenticate:
-            response = self.session.get('')
+            response = self.session.get("")
             if response.status_code == 401:
-                logging.error(f'{response.json()}')
+                logging.error(f"{response.json()}")
                 raise UnauthorizedError(response.text)
 
     def _fetch_data(self, endpoint, params):
