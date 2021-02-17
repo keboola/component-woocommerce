@@ -1,1 +1,1 @@
-Testing functional sample extractor for purposes of the python component template. 
+WooCommerce is a customizable, open-source eCommerce platform built on WordPress that allows anyone to set up an online store and sell their products.

@@ -4,7 +4,11 @@
   "required": [
     "store_url",
     "#consumer_key",
-    "#consumer_secret"
+    "#consumer_secret",
+    "load_type",
+    "date_from",
+    "date_to",
+    "endpoint"
   ],
   "properties": {
     "store_url": {
@@ -16,18 +20,18 @@
     "#consumer_key": {
       "type": "string",
       "title": "Consumer Key",
-      "description": "Rest API Consumer Key from Woocommerce Admin panel",
+      "description": "Rest API Consumer Key from WooCommerce Admin panel",
       "format": "password",
       "propertyOrder": 200
     },
     "#consumer_secret": {
       "type": "string",
       "title": "Consumer secret",
-      "description": "Rest API Consumer Secret from Woocommerce Admin panel",
+      "description": "Rest API Consumer Secret from WooCommerce Admin panel",
       "format": "password",
       "propertyOrder": 300
     },
-    "incremental_output": {
+    "load_type": {
       "type": "number",
       "enum": [
         0,
@@ -47,35 +51,34 @@
     "date_from": {
       "type": "string",
       "title": "From date [inclusive]",
-      "description": "Date from. Date in YYYY-MM-DD format or a string i.e. 5 days ago, 1 month ago, yesterday, etc. If left empty, all records are downloaded.",
+      "description": "Date from. Date in YYYY-MM-DD format or a string i.e. 5 days ago, 1 month ago, yesterday, etc.",
       "propertyOrder": 500
     },
     "date_to": {
       "type": "string",
       "title": "To date [exclusive]",
       "default": "now",
-      "description": "Date to. Date in YYYY-MM-DD format or a string i.e. 5 days ago, 1 month ago, yesterday, etc. If left empty, all records are downloaded.",
+      "description": "Date to. Date in YYYY-MM-DD format or a string i.e. 5 days ago, 1 month ago, yesterday, etc.",
       "propertyOrder": 600
     },
     "endpoint": {
-      "type": "string",
-      "enum": [
-        "all",
-        "customers",
-        "orders",
-        "products"
-      ],
+      "type": "array",
+      "uniqueItems": true,
+      "format": "select",
       "options": {
-        "enum_titles": [
-          "All",
+        "grid_columns": 12
+      },
+      "title": "Endpoint",
+      "description": "To fetch data from selected endpoints i.e. Customers, Orders and Products. Default selection is all",
+      "items": {
+        "type": "string",
+        "enum": [
           "Customers",
           "Orders",
           "Products"
         ]
       },
-      "default": "all",
-      "title": "Endpoint",
-      "description": "To fetch data from specific endpoints i.e. Customers, Orders and Products. Default selection is all",
+      "default": ["Customers", "Orders", "Products"],
       "propertyOrder": 700
     }
   }

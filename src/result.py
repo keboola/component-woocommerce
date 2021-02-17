@@ -769,7 +769,6 @@ class ProductsWriter(ResultWriter):
     ):
         product_id = data.get("id", "Not found")
         excludes = ["_links", "downloads"]
-        map(lambda field: data.pop(field), excludes)
         for field in excludes:
             data.pop(field)
         categories = data.pop("categories", [])

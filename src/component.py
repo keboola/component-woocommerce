@@ -19,11 +19,21 @@ CONSUMER_KEY = "#consumer_key"
 CONSUMER_SECRET = "#consumer_secret"
 DATE_FROM = "date_from"
 DATE_TO = "date_to"
+ENDPOINT = "endpoint"
+KEY_INCREMENTAL = "load_type"
 # #### Keep for debug
 KEY_DEBUG = "debug"
 
 # list of mandatory parameters => if some is missing, component will fail with readable message on initialization.
-MANDATORY_PARS = [STORE_URL, CONSUMER_KEY, CONSUMER_SECRET, DATE_FROM, DATE_TO]
+MANDATORY_PARS = [
+    STORE_URL,
+    CONSUMER_KEY,
+    CONSUMER_SECRET,
+    DATE_FROM,
+    DATE_TO,
+    ENDPOINT,
+    KEY_INCREMENTAL,
+]
 # MANDATORY_PARS = [KEY_DEBUG]
 MANDATORY_IMAGE_PARS = []
 
@@ -81,44 +91,31 @@ class Component(KBCEnvHandler):
         start_date, end_date = self.get_date_period_converted(
             params[DATE_FROM], params[DATE_TO]
         )
-        # start_date, end_date = self.get_date_period_converted('2 month ago', 'now')
         results = []
-        sliced_results = []
         logging.info(f"Getting data {start_date}")
-        if params["endpoint"] == "orders":
-            results.extend(
-                self.download_orders(
-                    start_date.replace(microsecond=0).isoformat(),
-                    end_date.replace(microsecond=0).isoformat(),
-                    last_state,
+        endpoints = params.get("endpoint", ["Orders", "Products", "Customers"])
+        for endpoint in endpoints:
+            if endpoint.lower() == "orders":
+                logging.info("Downloading Orders")
+                results.extend(
+                    self.download_orders(
+                        start_date.replace(microsecond=0).isoformat(),
+                        end_date.replace(microsecond=0).isoformat(),
+                        last_state,
+                    )
                 )
-            )
-        elif params["endpoint"] == "products":
-            results.extend(
-                self.download_products(
-                    start_date.replace(microsecond=0).isoformat(),
-                    end_date.replace(microsecond=0).isoformat(),
-                    last_state,
+            if endpoint.lower() == "products":
+                logging.info("Downloading Products")
+                results.extend(
+                    self.download_products(
+                        start_date.replace(microsecond=0).isoformat(),
+                        end_date.replace(microsecond=0).isoformat(),
+                        last_state,
+                    )
                 )
-            )
-        elif params["endpoint"] == "customers":
-            results.extend(self.download_customers(last_state))
-        else:  # Fetch all
-            results.extend(
-                self.download_orders(
-                    start_date.replace(microsecond=0).isoformat(),
-                    end_date.replace(microsecond=0).isoformat(),
-                    last_state,
-                )
-            )
-            results.extend(
-                self.download_products(
-                    start_date.replace(microsecond=0).isoformat(),
-                    end_date.replace(microsecond=0).isoformat(),
-                    last_state,
-                )
-            )
-            results.extend(self.download_customers(last_state))
+            if endpoint.lower() == "customers":
+                logging.info("Downloading Customers")
+                results.extend(self.download_customers(last_state))
 
         # get current columns and store in state
         headers = {}
@@ -127,17 +124,7 @@ class Component(KBCEnvHandler):
             headers[file_name] = r.table_def.columns
         self.write_state_file(headers)
 
-        # separate sliced results
-        sliced_results.extend(
-            [
-                results.pop(idx)
-                for idx, r in enumerate(results)
-                if os.path.isdir(r.full_path)
-            ]
-        )
-
-        self.create_manifests(results, incremental=True)
-        self.create_manifests(sliced_results, headless=True, incremental=True)
+        self.create_manifests(results, incremental=params[KEY_INCREMENTAL])
 
     def download_orders(self, start_date, end_date, file_headers):
         with OrdersWriter(
@@ -146,11 +133,12 @@ class Component(KBCEnvHandler):
             extraction_time=self.extraction_time,
             file_headers=file_headers,
         ) as writer:
-            for obj in self.client.get_orders(date_from=start_date, date_to=end_date):
+            for data in self.client.get_orders(date_from=start_date, date_to=end_date):
                 try:
-                    writer.write(obj)
+                    for obj in data:
+                        writer.write(obj)
                 except Exception as err:
-                    logging.error(f"in download orders: {err}")
+                    logging.error(f"Fail to download orders: {err}")
         results = writer.collect_results()
         return results
 
@@ -161,9 +149,10 @@ class Component(KBCEnvHandler):
             extraction_time=self.extraction_time,
             file_headers=file_headers,
         ) as writer:
-            for customer in self.client.get_customers():
+            for data in self.client.get_customers():
                 try:
-                    writer.write(customer)
+                    for customer in data:
+                        writer.write(customer)
                 except Exception as err:
                     logging.error(f"Fail to fetch customers {err}")
         results = writer.collect_results()
@@ -178,11 +167,12 @@ class Component(KBCEnvHandler):
             file_headers=file_headers,
             client=self.client,
         ) as writer:
-            for product in self.client.get_products(
+            for data in self.client.get_products(
                 date_from=start_date, date_to=end_date
             ):
                 try:
-                    writer.write(product)
+                    for product in data:
+                        writer.write(product)
                 except Exception as err:
                     logging.error(f"Fail to fetch  products {err}")
         results = writer.collect_results()

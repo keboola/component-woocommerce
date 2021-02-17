@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from woocommerce import API
 
@@ -6,9 +7,19 @@ from woocommerce import API
 RESULTS_PER_PAGE = 100
 
 
+# 401, 500
+class UnauthorizedError(Exception):
+    pass
+
+
 class WooCommerceClient:
     def __init__(
-        self, url: str, consumer_key: str, consumer_secret: str, version: str = "wc/v3"
+        self,
+        url: str,
+        consumer_key: str,
+        consumer_secret: str,
+        version: str = "wc/v3",
+        authenticate: bool = True,
     ):
         self.session = API(
             url=url,
@@ -16,24 +27,27 @@ class WooCommerceClient:
             consumer_secret=consumer_secret,
             version=version,
         )
+        if authenticate:
+            response = self.session.get("")
+            if response.status_code == 401:
+                logging.error(f"{response.json()}")
+                raise UnauthorizedError(response.text)
 
     def _fetch_data(self, endpoint, params):
         """
         Fetch all data
         """
-        data = []
         page_count = 1
         response = self.session.get(endpoint, params=params)
         if response.status_code == 200:
-            data = response.json()
+            yield response.json()
             total_pages = int(response.headers.get("X-WP-TotalPages", 1))
             while page_count < total_pages:
                 page_count += 1
                 params["page"] = page_count
                 response = self.session.get(endpoint, params=params)
                 if response.status_code == 200:
-                    data.append(response.json())
-        return data
+                    yield response.json()
 
     def get_orders(
         self,
@@ -54,8 +68,8 @@ class WooCommerceClient:
             "after": date_from,
             "before": date_to,
         }
-        orders = self._fetch_data("orders", params)
-        return orders
+        data = self._fetch_data("orders", params)
+        return data
 
     def get_products(
         self,
@@ -73,13 +87,13 @@ class WooCommerceClient:
             "after": date_from,
             "before": date_to,
         }
-        products = self._fetch_data("products", params)
-        return products
+        data = self._fetch_data("products", params)
+        return data
 
     def get_customers(self, per_page: int = RESULTS_PER_PAGE):
         """
         Get all customers
         """
         params = {"per_page": per_page}
-        customers = self._fetch_data("customers", params)
-        return customers
+        data = self._fetch_data("customers", params)
+        return data
