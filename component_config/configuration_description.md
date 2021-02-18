@@ -1,6 +1,3 @@
-
-# Descriptions
-
 To download data form WooCommerce we need to configure
 
 - `store_url` Website Domain name where WooCommerce is hosted. e.g. https://myshop.com

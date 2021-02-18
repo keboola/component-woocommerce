@@ -32,7 +32,6 @@ MANDATORY_PARS = [
     DATE_FROM,
     DATE_TO,
     ENDPOINT,
-    KEY_INCREMENTAL,
 ]
 # MANDATORY_PARS = [KEY_DEBUG]
 MANDATORY_IMAGE_PARS = []
@@ -124,7 +123,7 @@ class Component(KBCEnvHandler):
             headers[file_name] = r.table_def.columns
         self.write_state_file(headers)
 
-        self.create_manifests(results, incremental=params[KEY_INCREMENTAL])
+        self.create_manifests(results, incremental=params.get(KEY_INCREMENTAL, True))
 
     def download_orders(self, start_date, end_date, file_headers):
         with OrdersWriter(
