@@ -147,30 +147,30 @@ Here each table has `id` is primary key for respective table and `product_id` is
 ```bash
 tables
 ├── customer
-├── customer__metadata
+│   └── customer__metadata
 ├── order
-├── order__coupon_lines
-├── order__coupon_lines__meta_data
-├── order__fee_lines
-├── order__fee_lines__taxes
-├── order__fee_lines__meta_data
-├── order__line_items
-├── order__line_items__meta_data
-├── order__line_items__taxes
-├── order__metadata
-├── order__refunds
-├── order__shipping_lines
-├── order__shipping_lines__meta_data
-├── order__shipping_lines__taxes
-├── order__tax_lines
-├── order__tax_lines__meta_data
-├── product
-├── product__attributes
-├── product__categories
-├── product__default_attributes
-├── product__images
-└── product__metadata
-└── product__tags
+│   ├── order__coupon_lines
+│   │   └── order__coupon_lines__meta_data
+│   ├── order__fee_lines
+│   │   ├── order__fee_lines__meta_data
+│   │   └── order__fee_lines__taxes
+│   ├── order__line_items
+│   │   ├── order__line_items__meta_data
+│   │   └── order__line_items__taxes
+│   ├── order__metadata
+│   ├── order__refunds
+│   ├── order__shipping_lines
+│   │   ├── order__shipping_lines__meta_data
+│   │   └── order__shipping_lines__taxes
+│   └── order__tax_lines
+│       └── order__tax_lines__meta_data
+└── product
+    ├── product__attributes
+    ├── product__categories
+    ├── product__default_attributes
+    ├── product__images
+    ├── product__metadata
+    └── product__tags
 ```
 
 ## Development
@@ -201,3 +201,40 @@ docker-compose run --rm test
 ## Integration
 
 For information about deployment and integration with KBC, please refer to the [deployment section of developers documentation](https://developers.keboola.com/extend/component/deployment/)
+
+
+## Setup WooCommerce Test Server
+
+1. create `docker-compose.yml` file on server
+
+```bash
+
+version: '3.3'
+
+services:
+  db:
+    image: mysql:latest
+    volumes:
+      - data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: wordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:latest
+    ports:
+      - "8000:80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+volumes:
+    data: {}
+```
