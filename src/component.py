@@ -95,7 +95,7 @@ class Component(KBCEnvHandler):
 
             logging.info(f"Getting data From: {start_date} To: {end_date}")
         else:
-            logging.info('Getting all data')
+            logging.info("Getting all data")
         results = []
         endpoints = params.get("endpoint", ["Orders", "Products", "Customers"])
         for endpoint in endpoints:

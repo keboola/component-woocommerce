@@ -151,9 +151,11 @@ class WooCommerceClient:
         """
         page_count = 1
         # if any date_from or date_to is None then download all data for orders and products
-        if endpoint in ['orders', 'products'] and not (params.get('after') or params.get('before')):
-            params.pop('after')
-            params.pop('before')
+        if endpoint in ["orders", "products"] and not (
+            params.get("after") or params.get("before")
+        ):
+            params.pop("after")
+            params.pop("before")
         response = self.session.get(endpoint, params=params)
         response.raise_for_status()
         if response.status_code == 200:
