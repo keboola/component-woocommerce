@@ -1,8 +1,9 @@
 import datetime
+import functools
 import logging
 import math
 import sys
-import functools
+
 
 import backoff
 import requests
@@ -127,8 +128,10 @@ class WooCommerceClient:
             try:
                 response = self.session.get("")
                 if response.status_code == 401:
-                    logging.error(f"{response.json()}")
-                    raise UnauthorizedError(response.text)
+                    r = response.json()
+                    msg = f"message: {r['message']} error: {r['code']} status: {r['data']['status']}"
+                    logging.error(msg)
+                    raise UnauthorizedError(msg)
             except requests.exceptions.ConnectionError as err:
                 logging.error(err)
                 raise ConnectionError(
