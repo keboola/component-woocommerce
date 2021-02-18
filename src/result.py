@@ -124,9 +124,9 @@ class LineItemsWriter(ResultWriter):
         self.taxes_writer = ResultWriter(
             result_dir_path,
             KBCTableDef(
-                name=f"{prefix}line_items_taxes",
+                name=f"{prefix}line_items__taxes",
                 pk=primary_keys,
-                columns=file_headers.get(f"{prefix}line_items_taxes.csv", []),
+                columns=file_headers.get(f"{prefix}line_items__taxes.csv", []),
                 destination="",
             ),
             flatten_objects=True,
@@ -137,9 +137,9 @@ class LineItemsWriter(ResultWriter):
         self.meta_data_writer = ResultWriter(
             result_dir_path,
             KBCTableDef(
-                name=f"{prefix}line_items_meta_data",
+                name=f"{prefix}line_items__meta_data",
                 pk=primary_keys,
-                columns=file_headers.get(f"{prefix}line_items_meta_data.csv", []),
+                columns=file_headers.get(f"{prefix}line_items__meta_data.csv", []),
                 destination="",
             ),
             flatten_objects=True,
@@ -223,9 +223,9 @@ class TaxLinesWriter(ResultWriter):
         self.meta_data_writer = ResultWriter(
             result_dir_path,
             KBCTableDef(
-                name=f"{prefix}tax_lines_meta_data",
+                name=f"{prefix}tax_lines__meta_data",
                 pk=primary_keys,
-                columns=file_headers.get(f"{prefix}tax_lines_meta_data.csv", []),
+                columns=file_headers.get(f"{prefix}tax_lines__meta_data.csv", []),
                 destination="",
             ),
             flatten_objects=True,
@@ -300,9 +300,9 @@ class ShippingLinesWriter(ResultWriter):
         self.taxes_writer = ResultWriter(
             result_dir_path,
             KBCTableDef(
-                name=f"{prefix}shipping_lines_taxes",
+                name=f"{prefix}shipping_lines__taxes",
                 pk=primary_keys,
-                columns=file_headers.get(f"{prefix}shipping_lines_taxes.csv", []),
+                columns=file_headers.get(f"{prefix}shipping_lines__taxes.csv", []),
                 destination="",
             ),
             flatten_objects=True,
@@ -314,9 +314,9 @@ class ShippingLinesWriter(ResultWriter):
         self.meta_data_writer = ResultWriter(
             result_dir_path,
             KBCTableDef(
-                name=f"{prefix}shipping_lines_meta_data",
+                name=f"{prefix}shipping_lines__meta_data",
                 pk=primary_keys,
-                columns=file_headers.get(f"{prefix}shipping_lines_meta_data.csv", []),
+                columns=file_headers.get(f"{prefix}shipping_lines__meta_data.csv", []),
                 destination="",
             ),
             flatten_objects=True,
@@ -400,9 +400,9 @@ class CouponLinesWriter(ResultWriter):
         self.meta_data_writer = ResultWriter(
             result_dir_path,
             KBCTableDef(
-                name=f"{prefix}coupon_lines_meta_data",
+                name=f"{prefix}coupon_lines__meta_data",
                 pk=primary_keys,
-                columns=file_headers.get(f"{prefix}coupon_lines_meta_data.csv", []),
+                columns=file_headers.get(f"{prefix}coupon_lines__meta_data.csv", []),
                 destination="",
             ),
             flatten_objects=True,
@@ -468,7 +468,7 @@ class OrdersWriter(ResultWriter):
             extraction_time,
             additional_pk=["order_id"],
             file_headers=file_headers,
-            prefix="order_",
+            prefix="order__",
         )
 
         self.tax_lines_writer = TaxLinesWriter(
@@ -476,7 +476,7 @@ class OrdersWriter(ResultWriter):
             extraction_time,
             additional_pk=["order_id"],
             file_headers=file_headers,
-            prefix="order_",
+            prefix="order__",
         )
 
         self.shipping_lines_writer = ShippingLinesWriter(
@@ -484,35 +484,35 @@ class OrdersWriter(ResultWriter):
             extraction_time,
             additional_pk=["order_id"],
             file_headers=file_headers,
-            prefix="order_",
+            prefix="order__",
         )
         self.order_meta_data_writer = MetadataWriter(
             result_dir_path,
             extraction_time,
             additional_pk=["order_id"],
             file_headers=file_headers,
-            prefix="order_",
+            prefix="order__",
         )
         self.coupon_lines_writer = CouponLinesWriter(
             result_dir_path,
             extraction_time,
             additional_pk=["order_id"],
             file_headers=file_headers,
-            prefix="order_",
+            prefix="order__",
         )
         self.fee_lines_writer = FeeLinesWriter(
             result_dir_path,
             extraction_time,
             additional_pk=["order_id"],
             file_headers=file_headers,
-            prefix="order_",
+            prefix="order__",
         )
         self.refunds_writer = RefundsWriter(
             result_dir_path,
             extraction_time,
             additional_pk=["order_id"],
             file_headers=file_headers,
-            prefix="order_",
+            prefix="order__",
         )
 
     def write(
@@ -602,7 +602,7 @@ class CustomersWriter(ResultWriter):
             KBCTableDef(
                 name=result_name,
                 pk=["id"],
-                columns=file_headers.get("customers.csv", []),
+                columns=file_headers.get("customer.csv", []),
                 destination="",
             ),
             fix_headers=True,
@@ -614,7 +614,7 @@ class CustomersWriter(ResultWriter):
             extraction_time,
             additional_pk=["customer_id"],
             file_headers=file_headers,
-            prefix="customers_",
+            prefix="customer__",
         )
         self.extraction_time = extraction_time
         self.user_value_cols = ["extraction_time"]
@@ -676,7 +676,7 @@ class ProductsWriter(ResultWriter):
             table_def=KBCTableDef(
                 name=result_name,
                 pk=pk,
-                columns=file_headers.get("products.csv", []),
+                columns=file_headers.get("product.csv", []),
                 destination="",
             ),
             fix_headers=True,
@@ -756,7 +756,7 @@ class ProductsWriter(ResultWriter):
             extraction_time,
             additional_pk=["product_id"],
             file_headers=file_headers,
-            prefix="products_",
+            prefix="product__",
         )
 
     def write(

@@ -161,8 +161,8 @@ class Component(KBCEnvHandler):
     def download_products(self, start_date, end_date, file_headers):
         with ProductsWriter(
             self.tables_out_path,
-            "products",
-            prefix="products_",
+            "product",
+            prefix="product_",
             extraction_time=self.extraction_time,
             file_headers=file_headers,
             client=self.client,

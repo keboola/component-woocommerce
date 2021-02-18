@@ -1,15 +1,111 @@
 import datetime
 import logging
+import math
+import sys
+import functools
 
+import backoff
+import requests
 from woocommerce import API
 
 
 RESULTS_PER_PAGE = 100
 
+# We will retry a 500 error a maximum of 5 times before giving up
+MAX_RETRIES = 5
 
-# 401, 500
+
+class ConnectionError(Exception):
+    pass
+
+
+class WooCommerceClientError(Exception):
+    pass
+
+
+class HTTPSProtocolError(Exception):
+    pass
+
+
 class UnauthorizedError(Exception):
     pass
+
+
+def is_not_status_code_fn(status_code):
+    def gen_fn(exc):
+        if getattr(exc, "code", None) and exc.code not in status_code:
+            return True
+        # Retry other errors up to the max
+        return False
+
+    return gen_fn
+
+
+def leaky_bucket_handler(details):
+    logging.info("Received 429 -- sleeping for %s seconds", details["wait"])
+
+
+def retry_handler(details):
+    logging.info(
+        "Received 500 or retryable error -- Retry %s/%s", details["tries"], MAX_RETRIES
+    )
+
+
+# pylint: disable=unused-argument
+def retry_after_wait_gen(**kwargs):
+    # This is called in an except block so we can retrieve the exception
+    # and check it.
+    exc_info = sys.exc_info()
+    resp = exc_info[1].response
+    # Retry-After is an undocumented header. But honoring
+    # it was proven to work in our spikes.
+    # It's been observed to come through as lowercase, so fallback if not present
+    sleep_time_str = resp.headers.get("Retry-After", resp.headers.get("retry-after"))
+    yield math.floor(float(sleep_time_str) * 2)
+
+
+def error_handling(fnc):
+    @backoff.on_exception(
+        backoff.expo,
+        (
+            requests.exceptions.HTTPError,
+            requests.exceptions.Timeout,
+            requests.exceptions.ConnectionError,
+        ),
+        giveup=is_not_status_code_fn(range(500, 599)),
+        on_backoff=retry_handler,
+        max_tries=MAX_RETRIES,
+    )
+    @backoff.on_exception(
+        retry_after_wait_gen,
+        requests.exceptions.ConnectionError,
+        giveup=is_not_status_code_fn([429]),
+        on_backoff=leaky_bucket_handler,
+        # No jitter as we want a constant value
+        jitter=None,
+    )
+    @functools.wraps(fnc)
+    def wrapper(*args, **kwargs):
+        return fnc(*args, **kwargs)
+
+    return wrapper
+
+
+def response_error_handling(func):
+    """Function, that handles response handling of HTTP requests."""
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except requests.exceptions.HTTPError as e:
+            logging.error(e, exc_info=True)
+            # Handle different error codes
+            raise WooCommerceClientError(
+                "The resource was not found. Please check your store url!"
+            ) from e
+
+    return wrapper
 
 
 class WooCommerceClient:
@@ -28,17 +124,31 @@ class WooCommerceClient:
             version=version,
         )
         if authenticate:
-            response = self.session.get("")
-            if response.status_code == 401:
-                logging.error(f"{response.json()}")
-                raise UnauthorizedError(response.text)
+            try:
+                response = self.session.get("")
+                if response.status_code == 401:
+                    logging.error(f"{response.json()}")
+                    raise UnauthorizedError(response.text)
+            except requests.exceptions.ConnectionError as err:
+                logging.error(err)
+                raise ConnectionError(
+                    "Failed to establish a connection, please correct and verify the store_url"
+                ) from err
+            except requests.exceptions.SSLError as err:
+                logging.error(err)
+                raise HTTPSProtocolError(
+                    "Verify the site has valid ssl certificates"
+                ) from err
 
+    @response_error_handling
+    @error_handling
     def _fetch_data(self, endpoint, params):
         """
         Fetch all data
         """
         page_count = 1
         response = self.session.get(endpoint, params=params)
+        response.raise_for_status()
         if response.status_code == 200:
             yield response.json()
             total_pages = int(response.headers.get("X-WP-TotalPages", 1))
@@ -46,6 +156,7 @@ class WooCommerceClient:
                 page_count += 1
                 params["page"] = page_count
                 response = self.session.get(endpoint, params=params)
+                response.raise_for_status()
                 if response.status_code == 200:
                     yield response.json()
 
@@ -97,3 +208,11 @@ class WooCommerceClient:
         params = {"per_page": per_page}
         data = self._fetch_data("customers", params)
         return data
+
+
+API(
+    url="http://107.174.205.151:8000/",
+    consumer_key="ck_1055732145fee4e8eb7d551972ac7806a44efc0c",
+    consumer_secret="cs_88738e6fa6286abbd92575b9cd0774339a429594",
+    version="wc/v3",
+)
