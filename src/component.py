@@ -29,8 +29,6 @@ MANDATORY_PARS = [
     STORE_URL,
     CONSUMER_KEY,
     CONSUMER_SECRET,
-    DATE_FROM,
-    DATE_TO,
     ENDPOINT,
 ]
 # MANDATORY_PARS = [KEY_DEBUG]
@@ -87,19 +85,26 @@ class Component(KBCEnvHandler):
         params = self.cfg_params  # noqa
 
         last_state = self.get_state_file()
-        start_date, end_date = self.get_date_period_converted(
-            params[DATE_FROM], params[DATE_TO]
-        )
+        start_date = end_date = ""
+        if params[DATE_FROM] and params[DATE_TO]:
+            start_date, end_date = self.get_date_period_converted(
+                params[DATE_FROM], params[DATE_TO]
+            )
+            start_date = start_date.replace(microsecond=0).isoformat()
+            end_date = end_date.replace(microsecond=0).isoformat()
+
+            logging.info(f"Getting data From: {start_date} To: {end_date}")
+        else:
+            logging.info('Getting all data')
         results = []
-        logging.info(f"Getting data {start_date}")
         endpoints = params.get("endpoint", ["Orders", "Products", "Customers"])
         for endpoint in endpoints:
             if endpoint.lower() == "orders":
                 logging.info("Downloading Orders")
                 results.extend(
                     self.download_orders(
-                        start_date.replace(microsecond=0).isoformat(),
-                        end_date.replace(microsecond=0).isoformat(),
+                        start_date,
+                        end_date,
                         last_state,
                     )
                 )
@@ -107,8 +112,8 @@ class Component(KBCEnvHandler):
                 logging.info("Downloading Products")
                 results.extend(
                     self.download_products(
-                        start_date.replace(microsecond=0).isoformat(),
-                        end_date.replace(microsecond=0).isoformat(),
+                        start_date,
+                        end_date,
                         last_state,
                     )
                 )
@@ -161,7 +166,7 @@ class Component(KBCEnvHandler):
         with ProductsWriter(
             self.tables_out_path,
             "product",
-            prefix="product_",
+            prefix="product__",
             extraction_time=self.extraction_time,
             file_headers=file_headers,
             client=self.client,

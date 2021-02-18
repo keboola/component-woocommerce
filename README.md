@@ -144,41 +144,34 @@ Here each table has `id` is primary key for respective table and `product_id` is
 
 ### Hierarchy of output tables
 
-- Product
-
-  - product__categories
-  - product__tags
-  - product__images
-  - product__attributes
-  - product__default_attributes
-  - product__meta_data
-
-- Order
-
-  - order__meta_data
-  - order__line_items
-
-    - order__line_items__taxes
-    - order__line_items__meta_data
-
-  - order__tax_lines
-
-    - order__tax_lines__meta_data
-  - order__shipping_lines
-
-    - order__shipping_lines__taxes
-    - order__shipping_lines__meta_data
-  - order__fee_lines
-
-    - order__fee_lines__taxes
-    - order__fee_lines__meta_data
-  - order__coupon_lines
-
-    - order__coupon_lines__meta_data
-  - order__refunds
-
-- Customer
-  - customer__meta_data
+```bash
+tables
+├── customer
+├── customer__metadata
+├── order
+├── order__coupon_lines
+├── order__coupon_lines__meta_data
+├── order__fee_lines
+├── order__fee_lines__taxes
+├── order__fee_lines__meta_data
+├── order__line_items
+├── order__line_items__meta_data
+├── order__line_items__taxes
+├── order__metadata
+├── order__refunds
+├── order__shipping_lines
+├── order__shipping_lines__meta_data
+├── order__shipping_lines__taxes
+├── order__tax_lines
+├── order__tax_lines__meta_data
+├── product
+├── product__attributes
+├── product__categories
+├── product__default_attributes
+├── product__images
+└── product__metadata
+└── product__tags
+```
 
 ## Development
 
