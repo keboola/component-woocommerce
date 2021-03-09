@@ -19,14 +19,17 @@
     }
   },
   "parameters": {
-    "#api_token": "demo",
-    "period_from": "yesterday",
-    "endpoints": [
-      "deals",
-      "companies"
+    "store_url": "https://myshop.com",
+    "#consumer_key": "XXXX",
+    "#consumer_secret": "XXXX",
+    "load_type": 1,
+    "date_from": "1 week ago",
+    "date_to": "now",
+    "endpoint": [
+      "Customers",
+      "Orders",
+      "Products"
     ],
-    "company_properties": "",
-    "deal_properties": "",
     "debug": true
   },
   "image_parameters": {

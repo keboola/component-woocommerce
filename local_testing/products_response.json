@@ -1,0 +1,57 @@
+[
+  {
+    "id": 799,
+    "name": "Ship Your Idea",
+    "description": "",
+    "dimensions": {
+      "length": "",
+      "width": ""
+    },
+    "related_ids": [
+      31,
+      22
+    ],
+    "categories": [
+      {
+        "id": 9,
+        "name": "Clothing",
+        "slug": "clothing"
+      },
+      {
+        "id": 14,
+        "name": "T-shirts",
+        "slug": "t-shirts"
+      }
+    ],
+    "images": [
+      {
+        "id": 795,
+        "src": "https://example.com/wp-content/uploads/2017/03/T_4_front-11.jpg",
+        "name": ""
+      },
+      {
+        "id": 796,
+        "src": "https://example.com/wp-content/uploads/2017/03/T_4_back-10.jpg",
+        "name": ""
+      }
+    ],
+    "attributes": [
+      {
+        "id": 6,
+        "name": "Color",
+        "options": [
+          "Black",
+          "Green"
+        ]
+      },
+      {
+        "id": 0,
+        "name": "Size",
+        "options": [
+          "S",
+          "M"
+        ]
+      }
+    ]
+  }
+]

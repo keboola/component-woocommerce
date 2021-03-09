@@ -64,73 +64,10 @@ i.e.
 
 __NOTE:__ **The date selection does not affect Customers endpoint**
 
-## ForeignKey Relations for nested objects
+## Foreign Key Relations for nested objects
 
-For example Products have multiple attribute
-
-```json
-[
-  {
-    "id": 799,
-    "name": "Ship Your Idea",
-    "description": "",
-    "dimensions": {
-      "length": "",
-      "width": "",
-    },
-    "related_ids": [
-      31,
-      22,
-    ],
-    "categories": [
-      {
-        "id": 9,
-        "name": "Clothing",
-        "slug": "clothing"
-      },
-      {
-        "id": 14,
-        "name": "T-shirts",
-        "slug": "t-shirts"
-      }
-    ],
-    "images": [
-      {
-        "id": 795,
-        "src": "https://example.com/wp-content/uploads/2017/03/T_4_front-11.jpg",
-        "name": ""
-      },
-      {
-        "id": 796,
-        "src": "https://example.com/wp-content/uploads/2017/03/T_4_back-10.jpg",
-        "name": ""
-      },
-    ],
-    "attributes": [
-      {
-        "id": 6,
-        "name": "Color",
-        "options": [
-          "Black",
-          "Green"
-        ]
-      },
-      {
-        "id": 0,
-        "name": "Size",
-        "options": [
-          "S",
-          "M"
-        ]
-      }
-    ]
-  }
-]
-```
-
-## Output
-
-There are four tables generated from this schema
+For example in the `product` hierarchy, each child table contains a `product_id` column as a foreign key reference to 
+the parent `product` table:
 
 - In `products` table columns will be `["id", "name", "description", "dimensions__length", "dimensions__width", "related_ids"]`
 
@@ -140,7 +77,7 @@ There are four tables generated from this schema
 
 - In `products__attributes` table columns will be `["id", "name", "options", "product_id"]`
 
-Here each table has `id` is primary key for respective table and `product_id` is ForeignKey of `Products` table on `products__category`, `product__images` and `products__attributes` table
+i.e. the `product` may be joined to its attributes by `product.id` = `products__attributes.id`. 
 
 ### Hierarchy of output tables
 
