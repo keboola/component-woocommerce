@@ -1,0 +1,19 @@
+To Dump all table from Database:
+
+Generic command:
+docker exec CONTAINER sh -c 'exec mysqldump -u root -p "$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE"' > backup.sql
+
+To dump Only selected table:
+docker exec CONTAINER sh -c 'exec mysqldump -u root --password=wordpress wordpress wp_users wp_wc_customer_lookup wp_wc_order_coupon_lookup wp_wc_order_product_lookup wp_wc_order_stats wp_wc_product_meta_lookup wp_wc_tax_rate_classes wp_woocommerce_attribute_taxonomies wp_woocommerce_order_itemmeta wp_woocommerce_order_items wp_woocommerce_shipping_zone_locations wp_woocommerce_shipping_zone_methods wp_woocommerce_shipping_zones wp_woocommerce_tax_rate_locations wp_woocommerce_tax_rates' > data.sql
+
+To Restore Database:
+Generic Command:
+docker exec -i CONTAINER sh -c 'exec mysql -u root -p "$MYSQL_ROOT_PASSWORD" "MYSQL_DATABASE"' < data.sql
+
+docker exec -i CONTAINER sh -c 'exec mysql -u root -p --password=wordpress wordpress' < data.sql
+
+in this data.sql only selected table is dumped so
+
+while importing you will get only selected table
+
+make sure docker instance is running while restoring.
