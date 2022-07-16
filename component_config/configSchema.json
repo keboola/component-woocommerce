@@ -31,6 +31,14 @@
       "format": "password",
       "propertyOrder": 300
     },
+    "#query_string_auth": {
+      "type": "boolean",
+      "title": "Include authorization keys in query string",
+      "default": false,
+      "description": "Select this option if you receive 401 errors from your server. Some servers may have issues with standard Authorization header processing.",
+      "format": "checkbox",
+      "propertyOrder": 350
+    },
     "load_type": {
       "type": "number",
       "enum": [
@@ -79,7 +87,11 @@
           "Products"
         ]
       },
-      "default": ["Customers", "Orders", "Products"],
+      "default": [
+        "Customers",
+        "Orders",
+        "Products"
+      ],
       "propertyOrder": 700
     }
   }
