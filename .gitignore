@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.project
+.pydevproject
+local_testing
 
 # C extensions
 *.so

@@ -10,8 +10,8 @@ from pathlib import Path
 
 from kbc.env_handler import KBCEnvHandler
 
-from woocommerce_cli import WooCommerceClient
 from result import OrdersWriter, CustomersWriter, ProductsWriter
+from woocommerce_cli import WooCommerceClient
 
 # configuration variables
 STORE_URL = "store_url"
@@ -74,7 +74,7 @@ class Component(KBCEnvHandler):
             url=self.cfg_params.get("store_url"),
             consumer_key=self.cfg_params.get(CONSUMER_KEY),
             consumer_secret=self.cfg_params.get(CONSUMER_SECRET),
-            version=self.cfg_params.get("version", "wc/v3"),
+            version=self.cfg_params.get("version", "wc/v3")
         )
         self.extraction_time = datetime.datetime.now().isoformat()
 
@@ -132,10 +132,10 @@ class Component(KBCEnvHandler):
 
     def download_orders(self, start_date, end_date, file_headers):
         with OrdersWriter(
-            self.tables_out_path,
-            "order",
-            extraction_time=self.extraction_time,
-            file_headers=file_headers,
+                self.tables_out_path,
+                "order",
+                extraction_time=self.extraction_time,
+                file_headers=file_headers,
         ) as writer:
             for data in self.client.get_orders(date_from=start_date, date_to=end_date):
                 try:
@@ -148,10 +148,10 @@ class Component(KBCEnvHandler):
 
     def download_customers(self, file_headers):
         with CustomersWriter(
-            self.tables_out_path,
-            "customer",
-            extraction_time=self.extraction_time,
-            file_headers=file_headers,
+                self.tables_out_path,
+                "customer",
+                extraction_time=self.extraction_time,
+                file_headers=file_headers,
         ) as writer:
             for data in self.client.get_customers():
                 try:
@@ -164,15 +164,15 @@ class Component(KBCEnvHandler):
 
     def download_products(self, start_date, end_date, file_headers):
         with ProductsWriter(
-            self.tables_out_path,
-            "product",
-            prefix="product__",
-            extraction_time=self.extraction_time,
-            file_headers=file_headers,
-            client=self.client,
+                self.tables_out_path,
+                "product",
+                prefix="product__",
+                extraction_time=self.extraction_time,
+                file_headers=file_headers,
+                client=self.client,
         ) as writer:
             for data in self.client.get_products(
-                date_from=start_date, date_to=end_date
+                    date_from=start_date, date_to=end_date
             ):
                 try:
                     for product in data:

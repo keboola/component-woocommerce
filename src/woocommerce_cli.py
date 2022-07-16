@@ -4,11 +4,10 @@ import logging
 import math
 import sys
 
-
 import backoff
 import requests
+from requests import Response
 from woocommerce import API
-
 
 RESULTS_PER_PAGE = 100
 
@@ -69,9 +68,9 @@ def error_handling(fnc):
     @backoff.on_exception(
         backoff.expo,
         (
-            requests.exceptions.HTTPError,
-            requests.exceptions.Timeout,
-            requests.exceptions.ConnectionError,
+                requests.exceptions.HTTPError,
+                requests.exceptions.Timeout,
+                requests.exceptions.ConnectionError,
         ),
         giveup=is_not_status_code_fn(range(500, 599)),
         on_backoff=retry_handler,
@@ -105,18 +104,20 @@ def response_error_handling(func):
             raise WooCommerceClientError(
                 "The resource was not found. Please check your store url!"
             ) from e
+        except Exception as e:
+            raise e
 
     return wrapper
 
 
 class WooCommerceClient:
     def __init__(
-        self,
-        url: str,
-        consumer_key: str,
-        consumer_secret: str,
-        version: str = "wc/v3",
-        authenticate: bool = True,
+            self,
+            url: str,
+            consumer_key: str,
+            consumer_secret: str,
+            version: str = "wc/v3",
+            authenticate: bool = True,
     ):
         self.session = API(
             url=url,
@@ -125,25 +126,28 @@ class WooCommerceClient:
             version=version,
         )
         if authenticate:
-            try:
-                response = self.session.get("")
-                if response.status_code == 401:
-                    r = response.json()
-                    msg = f"message: {r['message']} error: {r['code']} status: {r['data']['status']}"
-                    logging.error(msg)
-                    raise UnauthorizedError(msg)
-            except requests.exceptions.ConnectionError as err:
-                logging.error(err)
-                raise ConnectionError(
-                    "Failed to establish a connection, please correct and verify the store_url"
-                ) from err
-            except requests.exceptions.SSLError as err:
-                logging.error(err)
-                raise HTTPSProtocolError(
-                    "Verify the site has valid ssl certificates"
-                ) from err
+            response = self.session.get("")
+            self._handle_response(response)
 
-    @response_error_handling
+    def _handle_response(self, response: Response):
+        try:
+            if response.status_code == 401:
+                r = response.json()
+                msg = f"message: {r['message']} error: {r['code']} status: {r['data']['status']}"
+                logging.error(msg)
+                raise UnauthorizedError(msg)
+            response.raise_for_status()
+        except requests.exceptions.SSLError as err:
+            logging.error(err)
+            raise HTTPSProtocolError(
+                "Verify the site has valid ssl certificates"
+            ) from err
+        except requests.exceptions.ConnectionError as err:
+            logging.error(err)
+            raise ConnectionError(
+                "Failed to establish a connection, please correct and verify the store_url"
+            ) from err
+
     @error_handling
     def _fetch_data(self, endpoint, params):
         """
@@ -152,12 +156,12 @@ class WooCommerceClient:
         page_count = 1
         # if any date_from or date_to is None then download all data for orders and products
         if endpoint in ["orders", "products"] and not (
-            params.get("after") or params.get("before")
+                params.get("after") or params.get("before")
         ):
             params.pop("after")
             params.pop("before")
         response = self.session.get(endpoint, params=params)
-        response.raise_for_status()
+        self._handle_response(response)
         if response.status_code == 200:
             yield response.json()
             total_pages = int(response.headers.get("X-WP-TotalPages", 1))
@@ -170,11 +174,11 @@ class WooCommerceClient:
                     yield response.json()
 
     def get_orders(
-        self,
-        date_from: str = "",
-        date_to: str = datetime.datetime.utcnow().replace(microsecond=0).isoformat(),
-        status: str = "any",
-        per_page: int = RESULTS_PER_PAGE,
+            self,
+            date_from: str = "",
+            date_to: str = datetime.datetime.utcnow().replace(microsecond=0).isoformat(),
+            status: str = "any",
+            per_page: int = RESULTS_PER_PAGE,
     ):
         """
         Get all orders
@@ -192,11 +196,11 @@ class WooCommerceClient:
         return data
 
     def get_products(
-        self,
-        date_from: str = "",
-        date_to: str = datetime.datetime.utcnow().replace(microsecond=0).isoformat(),
-        status: str = "any",
-        per_page: int = RESULTS_PER_PAGE,
+            self,
+            date_from: str = "",
+            date_to: str = datetime.datetime.utcnow().replace(microsecond=0).isoformat(),
+            status: str = "any",
+            per_page: int = RESULTS_PER_PAGE,
     ):
         """
         Get all products
@@ -217,11 +221,3 @@ class WooCommerceClient:
         params = {"per_page": per_page}
         data = self._fetch_data("customers", params)
         return data
-
-
-API(
-    url="http://107.174.205.151:8000/",
-    consumer_key="ck_1055732145fee4e8eb7d551972ac7806a44efc0c",
-    consumer_secret="cs_88738e6fa6286abbd92575b9cd0774339a429594",
-    version="wc/v3",
-)
