@@ -134,7 +134,6 @@ class WooCommerceClient:
             if response.status_code == 401:
                 r = response.json()
                 msg = f"message: {r['message']} error: {r['code']} status: {r['data']['status']}"
-                logging.error(msg)
                 raise UnauthorizedError(msg)
             response.raise_for_status()
         except requests.exceptions.SSLError as err:
