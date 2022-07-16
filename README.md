@@ -8,7 +8,8 @@ WooCommerce Extractor for Keboola Connection. Download all data under Orders, Pr
 
 ## Background
 
-WooCommerce is a customizable, open-source eCommerce platform built on WordPress that allows anyone to set up an online store and sell their products.
+WooCommerce is a customizable, open-source eCommerce platform built on WordPress that allows anyone to set up an online
+store and sell their products.
 
 ## Requirements
 
@@ -21,9 +22,10 @@ To enable this application you need to:
 ## Generating API keys
 
 To create or manage keys for a specific WordPress user, go to WooCommerce admin interface > Settings > API > Keys/Apps.
-Click the "Add Key" button. In the next screen, add a description and select the WordPress user you would like to generate the key for
-Choose the level of access for this REST API key, which can be Read access. Then click the "Generate API Key" button and WooCommerce will generate REST API keys
-These two keys are your Consumer Key and Consumer Secret.
+Click the "Add Key" button. In the next screen, add a description and select the WordPress user you would like to
+generate the key for Choose the level of access for this REST API key, which can be Read access. Then click the "
+Generate API Key" button and WooCommerce will generate REST API keys These two keys are your Consumer Key and Consumer
+Secret.
 
 ## Configuration
 
@@ -41,6 +43,12 @@ Rest API Consumer Key from WooCommerce Admin panel
 
 Rest API Consumer Secret from WooCommerce Admin panel
 
+### `query_string_auth`
+
+Select this option if you receive 401 errors from your server. As per
+official [documentation](https://woocommerce.github.io/woocommerce-rest-api-docs/#rest-api-keys), some servers may have
+issues with standard Authorization header processing. Enabling this option should help in such scenarios.
+
 ### `date_from`
 
 Inclusive Date in YYYY-MM-DD format or a string i.e. 5 days ago, 1 month ago, yesterday, etc.
@@ -51,12 +59,13 @@ Exclusive Date in YYYY-MM-DD format or a string i.e. 5 days ago, 1 month ago, ye
 
 ### `load_type`
 
-If set to Incremental update, the result tables will be updated based on primary key. Full load overwrites the destination table each time. NOTE: If you wish to remove deleted records, this needs to be set to Full load and the Period from attribute empty.
+If set to Incremental update, the result tables will be updated based on primary key. Full load overwrites the
+destination table each time. NOTE: If you wish to remove deleted records, this needs to be set to Full load and the
+Period from attribute empty.
 
 ### `endpoint`
 
-To fetch data from selected endpoints i.e. Customers, Orders and Products. Default selection is all
-i.e.
+To fetch data from selected endpoints i.e. Customers, Orders and Products. Default selection is all i.e.
 
 - Orders endpoint list all orders for give date range
 - Products endpoint list all Products for given date range
@@ -64,12 +73,35 @@ i.e.
 
 __NOTE:__ **The date selection does not affect Customers endpoint**
 
+## Example JSON configuration
+
+```json
+{
+  "parameters": {
+    "store_url": "https://yourstore.com",
+    "#consumer_key": "aaa",
+    "#consumer_secret": "ccc",
+    "query_string_auth": false,
+    "load_type": 1,
+    "date_from": "",
+    "date_to": "",
+    "endpoint": [
+      "Customers",
+      "Products",
+      "Orders"
+    ],
+    "debug": false
+  }
+}
+```
+
 ## Foreign Key Relations for nested objects
 
-For example in the `product` hierarchy, each child table contains a `product_id` column as a foreign key reference to 
+For example in the `product` hierarchy, each child table contains a `product_id` column as a foreign key reference to
 the parent `product` table:
 
-- In `products` table columns will be `["id", "name", "description", "dimensions__length", "dimensions__width", "related_ids"]`
+- In `products` table columns will
+  be `["id", "name", "description", "dimensions__length", "dimensions__width", "related_ids"]`
 
 - In `products__category` table columns will be `["id", "name", "slug", "product_id"]`
 
@@ -77,7 +109,7 @@ the parent `product` table:
 
 - In `products__attributes` table columns will be `["id", "name", "options", "product_id"]`
 
-i.e. the `product` may be joined to its attributes by `product.id` = `products__attributes.id`. 
+i.e. the `product` may be joined to its attributes by `product.id` = `products__attributes.id`.
 
 ### Hierarchy of output tables
 
@@ -112,7 +144,8 @@ tables
 
 ## Development
 
-If required, change local data folder (the `CUSTOM_FOLDER` placeholder) path to your custom path in the docker-compose file:
+If required, change local data folder (the `CUSTOM_FOLDER` placeholder) path to your custom path in the docker-compose
+file:
 
 ```yaml
     volumes:
@@ -137,8 +170,8 @@ docker-compose run --rm test
 
 ## Integration
 
-For information about deployment and integration with KBC, please refer to the [deployment section of developers documentation](https://developers.keboola.com/extend/component/deployment/)
-
+For information about deployment and integration with KBC, please refer to
+the [deployment section of developers documentation](https://developers.keboola.com/extend/component/deployment/)
 
 ## Setup WooCommerce Test Server
 
