@@ -118,12 +118,14 @@ class WooCommerceClient:
             consumer_secret: str,
             version: str = "wc/v3",
             authenticate: bool = True,
+            query_string_auth: bool = False
     ):
         self.session = API(
             url=url,
             consumer_key=consumer_key,
             consumer_secret=consumer_secret,
             version=version,
+            query_string_auth=query_string_auth
         )
         if authenticate:
             response = self.session.get("")

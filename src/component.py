@@ -17,6 +17,7 @@ from woocommerce_cli import WooCommerceClient
 STORE_URL = "store_url"
 CONSUMER_KEY = "#consumer_key"
 CONSUMER_SECRET = "#consumer_secret"
+KEY_QUERY_STRING_AUTH = "query_string_auth"
 DATE_FROM = "date_from"
 DATE_TO = "date_to"
 ENDPOINT = "endpoint"
@@ -74,7 +75,8 @@ class Component(KBCEnvHandler):
             url=self.cfg_params.get("store_url"),
             consumer_key=self.cfg_params.get(CONSUMER_KEY),
             consumer_secret=self.cfg_params.get(CONSUMER_SECRET),
-            version=self.cfg_params.get("version", "wc/v3")
+            version=self.cfg_params.get("version", "wc/v3"),
+            query_string_auth=self.cfg_params.get(KEY_QUERY_STRING_AUTH, False)
         )
         self.extraction_time = datetime.datetime.now().isoformat()
 
