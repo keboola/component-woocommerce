@@ -72,8 +72,7 @@ def error_handling(fnc):
         (
                 requests.exceptions.HTTPError,
                 requests.exceptions.Timeout,
-                requests.exceptions.ConnectionError,
-            requests.exceptions.SSLError
+                requests.exceptions.ConnectionError
         ),
         giveup=is_not_status_code_fn(range(500, 599)),
         on_backoff=retry_handler,
