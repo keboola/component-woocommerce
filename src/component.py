@@ -35,8 +35,6 @@ MANDATORY_PARS = [
 # MANDATORY_PARS = [KEY_DEBUG]
 MANDATORY_IMAGE_PARS = []
 
-APP_VERSION = "0.0.1"
-
 
 class Component(KBCEnvHandler):
     def __init__(self, debug=False):
@@ -60,7 +58,6 @@ class Component(KBCEnvHandler):
             logging.getLogger().setLevel(logging.DEBUG)
         else:
             logging.getLogger("woocommerce.component").setLevel(logging.WARNING)
-        logging.info("Running version %s", APP_VERSION)
         logging.info("Loading configuration...")
 
         try:
