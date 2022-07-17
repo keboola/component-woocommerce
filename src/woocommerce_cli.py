@@ -33,7 +33,7 @@ class UnauthorizedError(Exception):
 
 def is_not_status_code_fn(status_code):
     def gen_fn(exc):
-        if getattr(exc, "code", None) and exc.code not in status_code:
+        if getattr(exc, "code", None) and exc.code not in status_code or getattr(exc, "code", None) is None:
             return True
         # Retry other errors up to the max
         return False
@@ -56,6 +56,8 @@ def retry_after_wait_gen(**kwargs):
     # This is called in an except block so we can retrieve the exception
     # and check it.
     exc_info = sys.exc_info()
+    if not exc_info[1].response:
+        return 0
     resp = exc_info[1].response
     # Retry-After is an undocumented header. But honoring
     # it was proven to work in our spikes.
@@ -70,7 +72,7 @@ def error_handling(fnc):
         (
                 requests.exceptions.HTTPError,
                 requests.exceptions.Timeout,
-                requests.exceptions.ConnectionError,
+                requests.exceptions.ConnectionError
         ),
         giveup=is_not_status_code_fn(range(500, 599)),
         on_backoff=retry_handler,
@@ -79,7 +81,7 @@ def error_handling(fnc):
     @backoff.on_exception(
         retry_after_wait_gen,
         requests.exceptions.ConnectionError,
-        giveup=is_not_status_code_fn([429]),
+        giveup=is_not_status_code_fn([429, None]),
         on_backoff=leaky_bucket_handler,
         # No jitter as we want a constant value
         jitter=None,
