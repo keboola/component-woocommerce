@@ -11,7 +11,7 @@ from pathlib import Path
 from kbc.env_handler import KBCEnvHandler
 
 from result import OrdersWriter, CustomersWriter, ProductsWriter
-from woocommerce_cli import WooCommerceClient
+from woocommerce_cli import WooCommerceClient, error_handling
 
 # configuration variables
 STORE_URL = "store_url"
@@ -132,6 +132,7 @@ class Component(KBCEnvHandler):
 
         self.create_manifests(results, incremental=params.get(KEY_INCREMENTAL, True))
 
+    @error_handling
     def download_orders(self, start_date, end_date, file_headers):
         with OrdersWriter(
                 self.tables_out_path,
@@ -148,6 +149,7 @@ class Component(KBCEnvHandler):
         results = writer.collect_results()
         return results
 
+    @error_handling
     def download_customers(self, file_headers):
         with CustomersWriter(
                 self.tables_out_path,
@@ -164,6 +166,7 @@ class Component(KBCEnvHandler):
         results = writer.collect_results()
         return results
 
+    @error_handling
     def download_products(self, start_date, end_date, file_headers):
         with ProductsWriter(
                 self.tables_out_path,
