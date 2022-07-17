@@ -125,6 +125,7 @@ class WooCommerceClient:
         self.session = API(
             url=url,
             consumer_key=consumer_key,
+            timeout=120,
             consumer_secret=consumer_secret,
             version=version,
             query_string_auth=query_string_auth
