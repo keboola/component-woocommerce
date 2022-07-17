@@ -31,7 +31,7 @@
       "format": "password",
       "propertyOrder": 300
     },
-    "#query_string_auth": {
+    "query_string_auth": {
       "type": "boolean",
       "title": "Include authorization keys in query string",
       "default": false,
