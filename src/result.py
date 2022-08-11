@@ -142,7 +142,7 @@ class LineItemsWriter(ResultWriter):
                 columns=file_headers.get(f"{prefix}line_items__meta_data.csv", []),
                 destination="",
             ),
-            flatten_objects=True,
+            flatten_objects=False,
             fix_headers=True,
             child_separator="__",
         )
