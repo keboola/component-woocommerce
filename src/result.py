@@ -1,4 +1,5 @@
 from typing import List
+
 from kbc.result import ResultWriter, KBCTableDef
 
 EXTRACTION_TIME = "extraction_time"
@@ -7,12 +8,13 @@ KEY_ROW_NR = "row_nr"  # take row number
 
 class MetadataWriter(ResultWriter):
     def __init__(
-        self,
-        result_dir_path,
-        extraction_time,
-        additional_pk: List[str] = None,
-        prefix="",
-        file_headers=None,
+            self,
+            result_dir_path,
+            extraction_time,
+            additional_pk: List[str] = None,
+            prefix="",
+            file_headers=None,
+            flatten_metadata=True
     ) -> None:
         pk = ["id"]
         if additional_pk:
@@ -27,7 +29,7 @@ class MetadataWriter(ResultWriter):
                 destination="",
             ),
             fix_headers=True,
-            flatten_objects=True,
+            flatten_objects=flatten_metadata,
             child_separator="__",
         )
         self.extration_time = extraction_time
@@ -36,12 +38,12 @@ class MetadataWriter(ResultWriter):
 
 class FeeLinesWriter(ResultWriter):
     def __init__(
-        self,
-        result_dir_path,
-        extraction_time,
-        additional_pk: List[str] = None,
-        prefix="",
-        file_headers=None,
+            self,
+            result_dir_path,
+            extraction_time,
+            additional_pk: List[str] = None,
+            prefix="",
+            file_headers=None,
     ) -> None:
         pk = ["id"]
         if additional_pk:
@@ -65,12 +67,12 @@ class FeeLinesWriter(ResultWriter):
 
 class RefundsWriter(ResultWriter):
     def __init__(
-        self,
-        result_dir_path,
-        extraction_time,
-        additional_pk: List[str] = None,
-        prefix="",
-        file_headers=None,
+            self,
+            result_dir_path,
+            extraction_time,
+            additional_pk: List[str] = None,
+            prefix="",
+            file_headers=None,
     ) -> None:
         pk = ["id"]
         if additional_pk:
@@ -94,12 +96,13 @@ class RefundsWriter(ResultWriter):
 
 class LineItemsWriter(ResultWriter):
     def __init__(
-        self,
-        result_dir_path,
-        extraction_time,
-        additional_pk: List[str] = None,
-        prefix: str = "",
-        file_headers=None,
+            self,
+            result_dir_path,
+            extraction_time,
+            additional_pk: List[str] = None,
+            prefix: str = "",
+            file_headers=None,
+            flatten_metadata=True
     ):
         pk = ["id"]
         if additional_pk:
@@ -142,18 +145,18 @@ class LineItemsWriter(ResultWriter):
                 columns=file_headers.get(f"{prefix}line_items__meta_data.csv", []),
                 destination="",
             ),
-            flatten_objects=True,
+            flatten_objects=flatten_metadata,
             fix_headers=True,
             child_separator="__",
         )
 
     def write(
-        self,
-        data,
-        file_name=None,
-        user_values=None,
-        object_from_arrays=False,
-        write_header=True,
+            self,
+            data,
+            file_name=None,
+            user_values=None,
+            object_from_arrays=False,
+            write_header=True,
     ):
         # flatten obj
         line_item_id = data["id"]
@@ -193,12 +196,13 @@ class LineItemsWriter(ResultWriter):
 
 class TaxLinesWriter(ResultWriter):
     def __init__(
-        self,
-        result_dir_path,
-        extraction_time,
-        additional_pk: list = None,
-        prefix="",
-        file_headers=None,
+            self,
+            result_dir_path,
+            extraction_time,
+            additional_pk: list = None,
+            prefix="",
+            file_headers=None,
+            flatten_metadata=True
     ) -> None:
         pk = ["id"]
         if additional_pk:
@@ -228,18 +232,18 @@ class TaxLinesWriter(ResultWriter):
                 columns=file_headers.get(f"{prefix}tax_lines__meta_data.csv", []),
                 destination="",
             ),
-            flatten_objects=True,
+            flatten_objects=flatten_metadata,
             fix_headers=True,
             child_separator="__",
         )
 
     def write(
-        self,
-        data,
-        file_name=None,
-        user_values=None,
-        object_from_arrays=False,
-        write_header=True,
+            self,
+            data,
+            file_name=None,
+            user_values=None,
+            object_from_arrays=False,
+            write_header=True,
     ):
         # flatten obj
         tax_lines_id = data["id"]
@@ -268,12 +272,13 @@ class TaxLinesWriter(ResultWriter):
 
 class ShippingLinesWriter(ResultWriter):
     def __init__(
-        self,
-        result_dir_path,
-        extraction_time,
-        additional_pk: list = None,
-        prefix="",
-        file_headers=None,
+            self,
+            result_dir_path,
+            extraction_time,
+            additional_pk: list = None,
+            prefix="",
+            file_headers=None,
+            flatten_metadata=True
     ) -> None:
         pk = ["id"]
         if additional_pk:
@@ -319,18 +324,18 @@ class ShippingLinesWriter(ResultWriter):
                 columns=file_headers.get(f"{prefix}shipping_lines__meta_data.csv", []),
                 destination="",
             ),
-            flatten_objects=True,
+            flatten_objects=flatten_metadata,
             fix_headers=True,
             child_separator="__",
         )
 
     def write(
-        self,
-        data,
-        file_name=None,
-        user_values=None,
-        object_from_arrays=False,
-        write_header=True,
+            self,
+            data,
+            file_name=None,
+            user_values=None,
+            object_from_arrays=False,
+            write_header=True,
     ):
         # flatten obj
         shipping_line_id = data["id"]
@@ -370,12 +375,13 @@ class ShippingLinesWriter(ResultWriter):
 
 class CouponLinesWriter(ResultWriter):
     def __init__(
-        self,
-        result_dir_path,
-        extraction_time,
-        additional_pk: list = None,
-        prefix="",
-        file_headers=None,
+            self,
+            result_dir_path,
+            extraction_time,
+            additional_pk: list = None,
+            prefix="",
+            file_headers=None,
+            flatten_metadata=True
     ):
         pk = ["id"]
         if additional_pk:
@@ -405,18 +411,18 @@ class CouponLinesWriter(ResultWriter):
                 columns=file_headers.get(f"{prefix}coupon_lines__meta_data.csv", []),
                 destination="",
             ),
-            flatten_objects=True,
+            flatten_objects=flatten_metadata,
             fix_headers=True,
             child_separator="__",
         )
 
     def write(
-        self,
-        data,
-        file_name=None,
-        user_values=None,
-        object_from_arrays=False,
-        write_header=True,
+            self,
+            data,
+            file_name=None,
+            user_values=None,
+            object_from_arrays=False,
+            write_header=True,
     ):
         # flatten obj
         coupon_lines_id = data["id"]
@@ -445,7 +451,8 @@ class CouponLinesWriter(ResultWriter):
 
 class OrdersWriter(ResultWriter):
     def __init__(
-        self, result_dir_path, result_name, extraction_time, file_headers=None
+            self, result_dir_path, result_name, extraction_time, file_headers=None,
+            flatten_metadata=True
     ):
         super().__init__(
             result_dir_path,
@@ -469,6 +476,7 @@ class OrdersWriter(ResultWriter):
             additional_pk=["order_id"],
             file_headers=file_headers,
             prefix="order__",
+            flatten_metadata=flatten_metadata
         )
 
         self.tax_lines_writer = TaxLinesWriter(
@@ -477,6 +485,7 @@ class OrdersWriter(ResultWriter):
             additional_pk=["order_id"],
             file_headers=file_headers,
             prefix="order__",
+            flatten_metadata=flatten_metadata
         )
 
         self.shipping_lines_writer = ShippingLinesWriter(
@@ -485,6 +494,7 @@ class OrdersWriter(ResultWriter):
             additional_pk=["order_id"],
             file_headers=file_headers,
             prefix="order__",
+            flatten_metadata=flatten_metadata
         )
         self.order_meta_data_writer = MetadataWriter(
             result_dir_path,
@@ -492,6 +502,7 @@ class OrdersWriter(ResultWriter):
             additional_pk=["order_id"],
             file_headers=file_headers,
             prefix="order__",
+            flatten_metadata=flatten_metadata
         )
         self.coupon_lines_writer = CouponLinesWriter(
             result_dir_path,
@@ -499,13 +510,14 @@ class OrdersWriter(ResultWriter):
             additional_pk=["order_id"],
             file_headers=file_headers,
             prefix="order__",
+            flatten_metadata=flatten_metadata
         )
         self.fee_lines_writer = FeeLinesWriter(
             result_dir_path,
             extraction_time,
             additional_pk=["order_id"],
             file_headers=file_headers,
-            prefix="order__",
+            prefix="order__"
         )
         self.refunds_writer = RefundsWriter(
             result_dir_path,
@@ -516,12 +528,12 @@ class OrdersWriter(ResultWriter):
         )
 
     def write(
-        self,
-        data,
-        file_name=None,
-        user_values=None,
-        object_from_arrays=False,
-        write_header=True,
+            self,
+            data,
+            file_name=None,
+            user_values=None,
+            object_from_arrays=False,
+            write_header=True,
     ):
         excludes = ["_links", "customer_user_agent"]
         for field in excludes:
@@ -595,7 +607,8 @@ class OrdersWriter(ResultWriter):
 
 class CustomersWriter(ResultWriter):
     def __init__(
-        self, result_dir_path, result_name, extraction_time, file_headers=None
+            self, result_dir_path, result_name, extraction_time, file_headers=None,
+            flatten_metadata=True
     ):
         super().__init__(
             result_dir_path,
@@ -615,18 +628,19 @@ class CustomersWriter(ResultWriter):
             additional_pk=["customer_id"],
             file_headers=file_headers,
             prefix="customer__",
+            flatten_metadata=flatten_metadata
         )
         self.extraction_time = extraction_time
         self.user_value_cols = ["extraction_time"]
         self.result_dir_path = result_dir_path
 
     def write(
-        self,
-        data,
-        file_name=None,
-        user_values=None,
-        object_from_arrays=False,
-        write_header=True,
+            self,
+            data,
+            file_name=None,
+            user_values=None,
+            object_from_arrays=False,
+            write_header=True,
     ):
         excludes = ["_links"]
         for field in excludes:
@@ -661,13 +675,14 @@ class CustomersWriter(ResultWriter):
 
 class ProductsWriter(ResultWriter):
     def __init__(
-        self,
-        result_dir_path: str,
-        result_name: str,
-        extraction_time,
-        prefix="",
-        file_headers=None,
-        client=None,
+            self,
+            result_dir_path: str,
+            result_name: str,
+            extraction_time,
+            prefix="",
+            file_headers=None,
+            client=None,
+            flatten_metadata=True
     ):
         self.client = client
         pk = ["id"]
@@ -757,15 +772,16 @@ class ProductsWriter(ResultWriter):
             additional_pk=["product_id"],
             file_headers=file_headers,
             prefix="product__",
+            flatten_metadata=flatten_metadata
         )
 
     def write(
-        self,
-        data,
-        file_name=None,
-        user_values=None,
-        object_from_arrays=False,
-        write_header=True,
+            self,
+            data,
+            file_name=None,
+            user_values=None,
+            object_from_arrays=False,
+            write_header=True,
     ):
         product_id = data.get("id", "Not found")
         excludes = ["_links", "downloads"]
