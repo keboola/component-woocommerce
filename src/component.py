@@ -22,6 +22,8 @@ DATE_FROM = "date_from"
 DATE_TO = "date_to"
 ENDPOINT = "endpoint"
 KEY_INCREMENTAL = "load_type"
+KEY_ADDITIONAL_OPTIONS = "additional_options"
+KEY_FLATTEN_METADATA = "flatten_metadata_values"
 # #### Keep for debug
 KEY_DEBUG = "debug"
 
@@ -76,6 +78,7 @@ class Component(KBCEnvHandler):
             query_string_auth=self.cfg_params.get(KEY_QUERY_STRING_AUTH, False)
         )
         self.extraction_time = datetime.datetime.now().isoformat()
+        self.flatten_metadata = self.cfg_params.get(KEY_ADDITIONAL_OPTIONS, {}).get(KEY_FLATTEN_METADATA, True)
 
     def run(self):
         """
