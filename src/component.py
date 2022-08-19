@@ -157,6 +157,7 @@ class Component(KBCEnvHandler):
                 "customer",
                 extraction_time=self.extraction_time,
                 file_headers=file_headers,
+                flatten_metadata=self.flatten_metadata
         ) as writer:
             for data in self.client.get_customers():
                 try:
@@ -176,6 +177,7 @@ class Component(KBCEnvHandler):
                 extraction_time=self.extraction_time,
                 file_headers=file_headers,
                 client=self.client,
+                flatten_metadata=self.flatten_metadata
         ) as writer:
             for data in self.client.get_products(
                     date_from=start_date, date_to=end_date
