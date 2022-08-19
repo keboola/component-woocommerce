@@ -139,6 +139,7 @@ class Component(KBCEnvHandler):
                 "order",
                 extraction_time=self.extraction_time,
                 file_headers=file_headers,
+                flatten_metadata=self.flatten_metadata
         ) as writer:
             for data in self.client.get_orders(date_from=start_date, date_to=end_date):
                 try:
