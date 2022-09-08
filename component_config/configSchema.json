@@ -64,7 +64,7 @@
       ],
       "default": "Incremental Fetching with publish date",
       "title": "Fetching mode",
-      "description": "If set to Incremental Fetching with publish date, data will be fetched that has been published in the date range. Full Download downloads all data. Incremental Fetching with custom field allows the use of a custom field",
+      "description": "If set to Incremental Fetching with publish date, data will be fetched that has been published in a defined date range. Full Download downloads all data. Incremental Fetching with custom field allows the use of a custom field",
       "propertyOrder": 400
     },
     "date_from": {
