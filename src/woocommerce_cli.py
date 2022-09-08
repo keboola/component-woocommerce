@@ -232,6 +232,6 @@ class WooCommerceClient:
         """
         Get all customers
         """
-        params = {"per_page": per_page}
+        params = {"per_page": per_page, 'role': 'all'}
         data = self._fetch_data("customers", params)
         return data
