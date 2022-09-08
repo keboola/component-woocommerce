@@ -56,14 +56,15 @@
     },
     "fetching_mode": {
       "type": "string",
+      "required" : true,
       "enum": [
-        "Basic Incremental Fetching",
-        "Custom Incremental Fetching",
+        "Incremental Fetching with publish date",
+        "Incremental Fetching with custom field",
         "Full Download"
       ],
-      "default": "Basic Incremental Fetching",
+      "default": "Incremental Fetching with publish date",
       "title": "Fetching mode",
-      "description": "If set to Basic Incremental Fetching, data will be fetched using the before and after parameters of the WooCommerce Api. Full Download downloads all data. Custom Incremental Fetching allows the use of custom incremental fetching parameters",
+      "description": "If set to Incremental Fetching with publish date, data will be fetched that has been published in the date range. Full Download downloads all data. Incremental Fetching with custom field allows the use of a custom field",
       "propertyOrder": 400
     },
     "date_from": {
@@ -74,7 +75,7 @@
       "propertyOrder": 500,
       "options": {
         "dependencies": {
-          "fetching_mode": "Basic Incremental Fetching"
+          "fetching_mode": "Incremental Fetching with publish date"
         }
       }
     },
@@ -86,7 +87,7 @@
       "propertyOrder": 600,
       "options": {
         "dependencies": {
-          "fetching_mode": "Basic Incremental Fetching"
+          "fetching_mode": "Incremental Fetching with publish date"
         }
       }
     },
@@ -98,7 +99,7 @@
       "propertyOrder": 700,
       "options": {
         "dependencies": {
-          "fetching_mode": "Custom Incremental Fetching"
+          "fetching_mode": "Incremental Fetching with custom field"
         }
       }
     },
@@ -110,7 +111,7 @@
       "propertyOrder": 800,
       "options": {
         "dependencies": {
-          "fetching_mode": "Custom Incremental Fetching"
+          "fetching_mode": "Incremental Fetching with custom field"
         }
       }
     },

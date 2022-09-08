@@ -100,17 +100,18 @@ class Component(KBCEnvHandler):
 
         param_start_date = params.get(DATE_FROM, None)
         param_end_date = params.get(DATE_TO, None)
-        fetching_mode = params.get(KEY_FETCHING_MODE, "Basic Incremental Fetching")
+        fetching_mode = params.get(KEY_FETCHING_MODE, "Incremental Fetching with publish date")
         custom_incremental_value = params.get(KEY_CUSTOM_INCREMENTAL_VALUE, None)
         custom_incremental_field = params.get(KEY_CUSTOM_INCREMENTAL_FIELD, None)
 
-        if param_start_date and param_end_date and fetching_mode == "Basic Incremental Fetching":
+        if param_start_date and param_end_date and fetching_mode == "Incremental Fetching with publish date":
             start_date, end_date = self.get_date_period_converted(param_start_date, param_end_date)
             start_date = start_date.replace(microsecond=0).isoformat()
             end_date = end_date.replace(microsecond=0).isoformat()
             logging.info(f"Getting data From: {start_date} To: {end_date}")
 
-        elif custom_incremental_value and custom_incremental_field and fetching_mode == "Custom Incremental Fetching":
+        elif custom_incremental_value and custom_incremental_field and \
+                fetching_mode == "Incremental Fetching with custom field":
             try:
                 custom_incremental_date = dateparser.parse(custom_incremental_value).replace(microsecond=0).isoformat()
             except ValueError as val_err:
