@@ -159,9 +159,7 @@ class WooCommerceClient:
         """
         page_count = 1
         # if any date_from or date_to is None then download all data for orders and products
-        if endpoint in ["orders", "products"] and not (
-                params.get("after") or params.get("before")
-        ):
+        if endpoint in ["orders", "products"] and not (params.get("after") or params.get("before")):
             params.pop("after")
             params.pop("before")
         response = self.session.get(endpoint, params=params)
@@ -183,21 +181,25 @@ class WooCommerceClient:
             date_to: str = datetime.datetime.utcnow().replace(microsecond=0).isoformat(),
             status: str = "any",
             per_page: int = RESULTS_PER_PAGE,
+            custom_incremental_field: str = None,
+            custom_incremental_date: str = None
     ):
-        """
-        Get all orders
-
-        after: str: date_from
-        before: str: date_to
-        """
-        params = {
-            "per_page": per_page,
-            "status": status,
-            "after": date_from,
-            "before": date_to,
-        }
-        data = self._fetch_data("orders", params)
-        return data
+        if custom_incremental_field and custom_incremental_date:
+            params = {
+                "per_page": per_page,
+                "status": status,
+                "after": None,
+                "before": None,
+                custom_incremental_field: custom_incremental_date
+            }
+        else:
+            params = {
+                "per_page": per_page,
+                "status": status,
+                "after": date_from,
+                "before": date_to,
+            }
+        return self._fetch_data("orders", params)
 
     def get_products(
             self,
@@ -205,16 +207,24 @@ class WooCommerceClient:
             date_to: str = datetime.datetime.utcnow().replace(microsecond=0).isoformat(),
             status: str = "any",
             per_page: int = RESULTS_PER_PAGE,
+            custom_incremental_field: str = None,
+            custom_incremental_date: str = None
     ):
-        """
-        Get all products
-        """
-        params = {
-            "per_page": per_page,
-            "status": status,
-            "after": date_from,
-            "before": date_to,
-        }
+        if custom_incremental_field and custom_incremental_date:
+            params = {
+                "per_page": per_page,
+                "status": status,
+                "after": None,
+                "before": None,
+                custom_incremental_field: custom_incremental_date
+            }
+        else:
+            params = {
+                "per_page": per_page,
+                "status": status,
+                "after": date_from,
+                "before": date_to,
+            }
         data = self._fetch_data("products", params)
         return data
 
