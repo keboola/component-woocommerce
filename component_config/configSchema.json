@@ -6,8 +6,6 @@
     "#consumer_key",
     "#consumer_secret",
     "load_type",
-    "date_from",
-    "date_to",
     "endpoint"
   ],
   "properties": {
@@ -56,19 +54,65 @@
       "description": "If set to Incremental update, the result tables will be updated based on primary key. Full load overwrites the destination table each time. NOTE: If you wish to remove deleted records, this needs to be set to Full load and the Period from attribute empty.",
       "propertyOrder": 400
     },
+    "fetching_mode": {
+      "type": "string",
+      "enum": [
+        "Basic Incremental Fetching",
+        "Custom Incremental Fetching",
+        "Full Download"
+      ],
+      "default": "Basic Incremental Fetching",
+      "title": "Fetching mode",
+      "description": "If set to Basic Incremental Fetching, data will be fetched using the before and after parameters of the WooCommerce Api. Full Download downloads all data. Custom Incremental Fetching allows the use of custom incremental fetching parameters",
+      "propertyOrder": 400
+    },
     "date_from": {
       "type": "string",
       "title": "From date [inclusive]",
       "description": "Date from. Date in YYYY-MM-DD format or a string i.e. 5 days ago, 1 month ago, yesterday, etc. If left empty, all records are downloaded.",
       "default": "1 week ago",
-      "propertyOrder": 500
+      "propertyOrder": 500,
+      "options": {
+        "dependencies": {
+          "fetching_mode": "Basic Incremental Fetching"
+        }
+      }
     },
     "date_to": {
       "type": "string",
       "title": "To date [exclusive]",
       "description": "Date to. Date in YYYY-MM-DD format or a string i.e. 5 days ago, 1 month ago, yesterday, etc. If left empty, all records are downloaded.",
       "default": "now",
-      "propertyOrder": 600
+      "propertyOrder": 600,
+      "options": {
+        "dependencies": {
+          "fetching_mode": "Basic Incremental Fetching"
+        }
+      }
+    },
+    "custom_incremental_field": {
+      "type": "string",
+      "title": "Custom Incremental Parameter",
+      "description": "Custom parameter in WooCommerce for incremental fetching",
+      "default": "modified_after",
+      "propertyOrder": 700,
+      "options": {
+        "dependencies": {
+          "fetching_mode": "Custom Incremental Fetching"
+        }
+      }
+    },
+    "custom_incremental_value": {
+      "type": "string",
+      "title": "Custom From date",
+      "description": "Date from for the custom incremental fetching parameter. Date in YYYY-MM-DD format or a string i.e. 5 days ago, 1 month ago, yesterday, etc.",
+      "default": "2 days ago",
+      "propertyOrder": 800,
+      "options": {
+        "dependencies": {
+          "fetching_mode": "Custom Incremental Fetching"
+        }
+      }
     },
     "endpoint": {
       "type": "array",
@@ -92,7 +136,7 @@
         "Orders",
         "Products"
       ],
-      "propertyOrder": 700
+      "propertyOrder": 900
     },
     "additional_options": {
       "type": "object",
@@ -110,7 +154,7 @@
           "propertyOrder": 10
         }
       },
-      "propertyOrder": 800
+      "propertyOrder": 1000
     }
   }
 }

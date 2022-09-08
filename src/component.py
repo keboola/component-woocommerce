@@ -6,6 +6,7 @@ import datetime
 import logging
 import os
 import sys
+import dateparser
 from pathlib import Path
 
 from kbc.env_handler import KBCEnvHandler
@@ -24,6 +25,10 @@ ENDPOINT = "endpoint"
 KEY_INCREMENTAL = "load_type"
 KEY_ADDITIONAL_OPTIONS = "additional_options"
 KEY_FLATTEN_METADATA = "flatten_metadata_values"
+
+KEY_FETCHING_MODE = "fetching_mode"
+KEY_CUSTOM_INCREMENTAL_FIELD = "custom_incremental_field"
+KEY_CUSTOM_INCREMENTAL_VALUE = "custom_incremental_value"
 # #### Keep for debug
 KEY_DEBUG = "debug"
 
@@ -36,6 +41,10 @@ MANDATORY_PARS = [
 ]
 # MANDATORY_PARS = [KEY_DEBUG]
 MANDATORY_IMAGE_PARS = []
+
+
+class UserException(Exception):
+    pass
 
 
 class Component(KBCEnvHandler):
@@ -87,15 +96,27 @@ class Component(KBCEnvHandler):
         params = self.cfg_params  # noqa
 
         last_state = self.get_state_file()
-        start_date = end_date = ""
-        if params[DATE_FROM] and params[DATE_TO]:
-            start_date, end_date = self.get_date_period_converted(
-                params[DATE_FROM], params[DATE_TO]
-            )
+        start_date = end_date = custom_incremental_date = None
+
+        param_start_date = params.get(DATE_FROM, None)
+        param_end_date = params.get(DATE_TO, None)
+        fetching_mode = params.get(KEY_FETCHING_MODE, "Basic Incremental Fetching")
+        custom_incremental_value = params.get(KEY_CUSTOM_INCREMENTAL_VALUE, None)
+        custom_incremental_field = params.get(KEY_CUSTOM_INCREMENTAL_FIELD, None)
+
+        if param_start_date and param_end_date and fetching_mode == "Basic Incremental Fetching":
+            start_date, end_date = self.get_date_period_converted(param_start_date, param_end_date)
             start_date = start_date.replace(microsecond=0).isoformat()
             end_date = end_date.replace(microsecond=0).isoformat()
-
             logging.info(f"Getting data From: {start_date} To: {end_date}")
+
+        elif custom_incremental_value and custom_incremental_field and fetching_mode == "Custom Incremental Fetching":
+            try:
+                custom_incremental_date = dateparser.parse(custom_incremental_value).replace(microsecond=0).isoformat()
+            except ValueError as val_err:
+                raise UserException("Failed to parse custom incremental date") from val_err
+            logging.info(
+                f"Getting data From: {custom_incremental_date} Till Now using '{custom_incremental_field}' param")
         else:
             logging.info("Getting all data")
         results = []
@@ -108,6 +129,8 @@ class Component(KBCEnvHandler):
                         start_date,
                         end_date,
                         last_state,
+                        custom_incremental_field,
+                        custom_incremental_date
                     )
                 )
             if endpoint.lower() == "products":
@@ -117,6 +140,8 @@ class Component(KBCEnvHandler):
                         start_date,
                         end_date,
                         last_state,
+                        custom_incremental_field,
+                        custom_incremental_date
                     )
                 )
             if endpoint.lower() == "customers":
@@ -133,7 +158,8 @@ class Component(KBCEnvHandler):
         self.create_manifests(results, incremental=params.get(KEY_INCREMENTAL, True))
 
     @error_handling
-    def download_orders(self, start_date, end_date, file_headers):
+    def download_orders(self, start_date, end_date, file_headers, custom_incremental_field,
+                        custom_incremental_date):
         with OrdersWriter(
                 self.tables_out_path,
                 "order",
@@ -141,7 +167,9 @@ class Component(KBCEnvHandler):
                 file_headers=file_headers,
                 flatten_metadata=self.flatten_metadata
         ) as writer:
-            for data in self.client.get_orders(date_from=start_date, date_to=end_date):
+            for data in self.client.get_orders(date_from=start_date, date_to=end_date,
+                                               custom_incremental_field=custom_incremental_field,
+                                               custom_incremental_date=custom_incremental_date):
                 try:
                     for obj in data:
                         writer.write(obj)
@@ -169,7 +197,8 @@ class Component(KBCEnvHandler):
         return results
 
     @error_handling
-    def download_products(self, start_date, end_date, file_headers):
+    def download_products(self, start_date, end_date, file_headers, custom_incremental_field,
+                          custom_incremental_date):
         with ProductsWriter(
                 self.tables_out_path,
                 "product",
@@ -180,7 +209,8 @@ class Component(KBCEnvHandler):
                 flatten_metadata=self.flatten_metadata
         ) as writer:
             for data in self.client.get_products(
-                    date_from=start_date, date_to=end_date
+                    date_from=start_date, date_to=end_date, custom_incremental_field=custom_incremental_field,
+                    custom_incremental_date=custom_incremental_date
             ):
                 try:
                     for product in data:
