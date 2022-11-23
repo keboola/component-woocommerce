@@ -181,6 +181,9 @@ class Component(KBCEnvHandler):
 
     @error_handling
     def download_customers(self, file_headers):
+
+        from guppy import hpy # noqa
+        h = hpy()
         with CustomersWriter(
                 self.tables_out_path,
                 "customer",
@@ -189,9 +192,9 @@ class Component(KBCEnvHandler):
                 flatten_metadata=self.flatten_metadata
         ) as writer:
             counter = 0
-            for data in self.client.get_customers(10):
+            for data in self.client.get_customers():
+                logging.debug(h.heap())
                 logging.debug(f"Processing page {counter}")
-                logging.debug(f"type {data}")
                 counter += 1
                 try:
                     for customer in data:
