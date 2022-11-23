@@ -157,7 +157,7 @@ class WooCommerceClient:
         """
         Fetch all data
         """
-        page_count = 1
+        page_count = 16
         # if any date_from or date_to is None then download all data for orders and products
         if endpoint in ["orders", "products"] and not (params.get("after") or params.get("before")):
             params.pop("after")

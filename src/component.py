@@ -195,9 +195,8 @@ class Component(KBCEnvHandler):
             for data in self.client.get_customers():
                 logging.debug(h.heap())
                 logging.debug(f"Processing page {counter}")
+                logging.debug(sys.getsizeof(data))
                 counter += 1
-                import gc
-                gc.collect()
                 try:
                     writer.write_all(data)
                 except Exception as err:
