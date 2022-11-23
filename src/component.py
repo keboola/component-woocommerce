@@ -6,9 +6,9 @@ import datetime
 import logging
 import os
 import sys
-import dateparser
 from pathlib import Path
 
+import dateparser
 from kbc.env_handler import KBCEnvHandler
 
 from result import OrdersWriter, CustomersWriter, ProductsWriter
@@ -188,7 +188,11 @@ class Component(KBCEnvHandler):
                 file_headers=file_headers,
                 flatten_metadata=self.flatten_metadata
         ) as writer:
-            for data in self.client.get_customers():
+            counter = 0
+            for data in self.client.get_customers(10):
+                logging.debug(f"Processing page {counter}")
+                logging.debug(f"type {data}")
+                counter += 1
                 try:
                     for customer in data:
                         writer.write(customer)

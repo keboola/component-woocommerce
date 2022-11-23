@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from kbc.result import ResultWriter, KBCTableDef
@@ -654,6 +655,7 @@ class CustomersWriter(ResultWriter):
                 EXTRACTION_TIME: self.extraction_time,
             },
         )
+        logging.debug(self._csv_writer_cache)
         super().write(
             data,
             file_name=file_name,
