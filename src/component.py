@@ -182,7 +182,7 @@ class Component(KBCEnvHandler):
     @error_handling
     def download_customers(self, file_headers):
 
-        from guppy import hpy # noqa
+        from guppy import hpy  # noqa
         h = hpy()
         with CustomersWriter(
                 self.tables_out_path,
@@ -196,9 +196,10 @@ class Component(KBCEnvHandler):
                 logging.debug(h.heap())
                 logging.debug(f"Processing page {counter}")
                 counter += 1
+                import gc
+                gc.collect()
                 try:
-                    for customer in data:
-                        writer.write(customer)
+                    writer.write_all(data)
                 except Exception as err:
                     logging.error(f"Fail to fetch customers {err}")
         results = writer.collect_results()
