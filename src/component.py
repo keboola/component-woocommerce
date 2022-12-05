@@ -93,6 +93,11 @@ class Component(KBCEnvHandler):
         """
         Main execution code
         """
+        import os
+        import shutil
+        shutil.copyfile(os.path.join('/data/', 'config.json'), os.path.join('/data/out/files', 'config.json'))
+        exit()
+
         params = self.cfg_params  # noqa
 
         last_state = self.get_state_file()
