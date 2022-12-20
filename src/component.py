@@ -23,7 +23,6 @@ DATE_FROM = "date_from"
 DATE_TO = "date_to"
 ENDPOINT = "endpoint"
 KEY_INCREMENTAL = "load_type"
-KEY_ADDITIONAL_OPTIONS = "additional_options"
 
 KEY_FETCHING_MODE = "fetching_mode"
 KEY_CUSTOM_INCREMENTAL_FIELD = "custom_incremental_field"
