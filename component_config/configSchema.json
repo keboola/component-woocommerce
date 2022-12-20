@@ -56,7 +56,7 @@
     },
     "fetching_mode": {
       "type": "string",
-      "required" : true,
+      "required": true,
       "enum": [
         "Incremental Fetching with publish date",
         "Incremental Fetching with custom field",
@@ -138,24 +138,6 @@
         "Products"
       ],
       "propertyOrder": 900
-    },
-    "additional_options": {
-      "type": "object",
-      "title": "Additional Options",
-      "required": [
-        "flatten_metadata_values"
-      ],
-      "properties": {
-        "flatten_metadata_values": {
-          "type": "boolean",
-          "format": "checkbox",
-          "title": "Flatten Metadata values",
-          "description": "Split object metadata table values into multiple columns if the value is an object (product__metadata, order__metadata, order_line__metadata, etc.). If set to true the values will be split into multiple column generating columns like value__discount_details_xxx.",
-          "default": true,
-          "propertyOrder": 10
-        }
-      },
-      "propertyOrder": 1000
     }
   }
 }

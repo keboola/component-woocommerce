@@ -24,7 +24,6 @@ DATE_TO = "date_to"
 ENDPOINT = "endpoint"
 KEY_INCREMENTAL = "load_type"
 KEY_ADDITIONAL_OPTIONS = "additional_options"
-KEY_FLATTEN_METADATA = "flatten_metadata_values"
 
 KEY_FETCHING_MODE = "fetching_mode"
 KEY_CUSTOM_INCREMENTAL_FIELD = "custom_incremental_field"
@@ -87,7 +86,6 @@ class Component(KBCEnvHandler):
             query_string_auth=self.cfg_params.get(KEY_QUERY_STRING_AUTH, False)
         )
         self.extraction_time = datetime.datetime.now().isoformat()
-        self.flatten_metadata = self.cfg_params.get(KEY_ADDITIONAL_OPTIONS, {}).get(KEY_FLATTEN_METADATA, True)
 
     def run(self):
         """
@@ -166,8 +164,7 @@ class Component(KBCEnvHandler):
                 self.tables_out_path,
                 "order",
                 extraction_time=self.extraction_time,
-                file_headers=file_headers,
-                flatten_metadata=self.flatten_metadata
+                file_headers=file_headers
         ) as writer:
             for data in self.client.get_orders(date_from=start_date, date_to=end_date,
                                                custom_incremental_field=custom_incremental_field,
@@ -186,8 +183,7 @@ class Component(KBCEnvHandler):
                 self.tables_out_path,
                 "customer",
                 extraction_time=self.extraction_time,
-                file_headers=file_headers,
-                flatten_metadata=self.flatten_metadata
+                file_headers=file_headers
         ) as writer:
             for data in self.client.get_customers():
                 try:
@@ -207,8 +203,7 @@ class Component(KBCEnvHandler):
                 prefix="product__",
                 extraction_time=self.extraction_time,
                 file_headers=file_headers,
-                client=self.client,
-                flatten_metadata=self.flatten_metadata
+                client=self.client
         ) as writer:
             for data in self.client.get_products(
                     date_from=start_date, date_to=end_date, custom_incremental_field=custom_incremental_field,
