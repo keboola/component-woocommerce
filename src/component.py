@@ -94,7 +94,6 @@ class Component(KBCEnvHandler):
         """
         Main execution code
         """
-
         params = self.cfg_params  # noqa
 
         last_state = self.get_state_file()
