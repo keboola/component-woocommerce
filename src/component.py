@@ -208,8 +208,8 @@ class Component(KBCEnvHandler):
                 prefix="product__",
                 extraction_time=self.extraction_time,
                 file_headers=file_headers,
-                flatten_metadata=self.flatten_metadata,
-                client=self.client
+                client=self.client,
+                flatten_metadata=self.flatten_metadata
         ) as writer:
             for data in self.client.get_products(
                     date_from=start_date, date_to=end_date, custom_incremental_field=custom_incremental_field,

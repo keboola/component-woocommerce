@@ -14,7 +14,7 @@ class MetadataWriter(ResultWriter):
             additional_pk: List[str] = None,
             prefix="",
             file_headers=None,
-            flatten_metadata=False
+            flatten_metadata=True
     ) -> None:
         pk = ["id"]
         if additional_pk:
@@ -293,7 +293,7 @@ class ShippingLinesWriter(ResultWriter):
                 destination="",
             ),
             fix_headers=True,
-            flatten_objects=flatten_metadata,
+            flatten_objects=True,
             child_separator="__",
         )
         self.extraction_time = extraction_time
@@ -325,6 +325,7 @@ class ShippingLinesWriter(ResultWriter):
                 destination="",
             ),
             fix_headers=True,
+            flatten_objects=flatten_metadata,
             child_separator="__",
         )
 
@@ -395,7 +396,7 @@ class CouponLinesWriter(ResultWriter):
                 destination="",
             ),
             fix_headers=True,
-            flatten_objects=flatten_metadata,
+            flatten_objects=True,
             child_separator="__",
         )
         self.extraction_time = extraction_time
@@ -410,6 +411,7 @@ class CouponLinesWriter(ResultWriter):
                 columns=file_headers.get(f"{prefix}coupon_lines__meta_data.csv", []),
                 destination="",
             ),
+            flatten_objects=flatten_metadata,
             fix_headers=True,
             child_separator="__",
         )
