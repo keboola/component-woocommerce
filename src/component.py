@@ -89,6 +89,10 @@ class Component(KBCEnvHandler):
         )
         self.extraction_time = datetime.datetime.now().isoformat()
         self.flatten_metadata = self.cfg_params.get(KEY_ADDITIONAL_OPTIONS, {}).get(KEY_FLATTEN_METADATA, False)
+        if self.flatten_metadata:
+            logging.warning("The component has been started with flatten metadata param set to true. This legacy "
+                            "option can cause oom error in some cases. Please consider turning this off and processing "
+                            "extracted data using Keboola transformations.")
 
     def run(self):
         """
