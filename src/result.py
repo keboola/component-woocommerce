@@ -324,8 +324,8 @@ class ShippingLinesWriter(ResultWriter):
                 columns=file_headers.get(f"{prefix}shipping_lines__meta_data.csv", []),
                 destination="",
             ),
-            fix_headers=True,
             flatten_objects=flatten_metadata,
+            fix_headers=True,
             child_separator="__",
         )
 
