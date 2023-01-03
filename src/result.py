@@ -13,7 +13,8 @@ class MetadataWriter(ResultWriter):
             extraction_time,
             additional_pk: List[str] = None,
             prefix="",
-            file_headers=None
+            file_headers=None,
+            flatten_metadata=False
     ) -> None:
         pk = ["id"]
         if additional_pk:
@@ -28,6 +29,7 @@ class MetadataWriter(ResultWriter):
                 destination="",
             ),
             fix_headers=True,
+            flatten_objects=flatten_metadata,
             child_separator="__",
         )
         self.extration_time = extraction_time
@@ -99,7 +101,8 @@ class LineItemsWriter(ResultWriter):
             extraction_time,
             additional_pk: List[str] = None,
             prefix: str = "",
-            file_headers=None
+            file_headers=None,
+            flatten_metadata=True
     ):
         pk = ["id"]
         if additional_pk:
@@ -142,6 +145,7 @@ class LineItemsWriter(ResultWriter):
                 columns=file_headers.get(f"{prefix}line_items__meta_data.csv", []),
                 destination="",
             ),
+            flatten_objects=flatten_metadata,
             fix_headers=True,
             child_separator="__",
         )
@@ -197,7 +201,8 @@ class TaxLinesWriter(ResultWriter):
             extraction_time,
             additional_pk: list = None,
             prefix="",
-            file_headers=None
+            file_headers=None,
+            flatten_metadata=True
     ) -> None:
         pk = ["id"]
         if additional_pk:
@@ -227,6 +232,7 @@ class TaxLinesWriter(ResultWriter):
                 columns=file_headers.get(f"{prefix}tax_lines__meta_data.csv", []),
                 destination="",
             ),
+            flatten_objects=flatten_metadata,
             fix_headers=True,
             child_separator="__",
         )
@@ -271,7 +277,8 @@ class ShippingLinesWriter(ResultWriter):
             extraction_time,
             additional_pk: list = None,
             prefix="",
-            file_headers=None
+            file_headers=None,
+            flatten_metadata=True
     ) -> None:
         pk = ["id"]
         if additional_pk:
@@ -286,7 +293,7 @@ class ShippingLinesWriter(ResultWriter):
                 destination="",
             ),
             fix_headers=True,
-            flatten_objects=True,
+            flatten_objects=flatten_metadata,
             child_separator="__",
         )
         self.extraction_time = extraction_time
@@ -372,7 +379,8 @@ class CouponLinesWriter(ResultWriter):
             extraction_time,
             additional_pk: list = None,
             prefix="",
-            file_headers=None
+            file_headers=None,
+            flatten_metadata=True
     ):
         pk = ["id"]
         if additional_pk:
@@ -387,7 +395,7 @@ class CouponLinesWriter(ResultWriter):
                 destination="",
             ),
             fix_headers=True,
-            flatten_objects=True,
+            flatten_objects=flatten_metadata,
             child_separator="__",
         )
         self.extraction_time = extraction_time
@@ -441,7 +449,8 @@ class CouponLinesWriter(ResultWriter):
 
 class OrdersWriter(ResultWriter):
     def __init__(
-            self, result_dir_path, result_name, extraction_time, file_headers=None
+            self, result_dir_path, result_name, extraction_time, file_headers=None,
+            flatten_metadata=True
     ):
         super().__init__(
             result_dir_path,
@@ -464,7 +473,8 @@ class OrdersWriter(ResultWriter):
             extraction_time,
             additional_pk=["order_id"],
             file_headers=file_headers,
-            prefix="order__"
+            prefix="order__",
+            flatten_metadata=flatten_metadata
         )
 
         self.tax_lines_writer = TaxLinesWriter(
@@ -472,7 +482,8 @@ class OrdersWriter(ResultWriter):
             extraction_time,
             additional_pk=["order_id"],
             file_headers=file_headers,
-            prefix="order__"
+            prefix="order__",
+            flatten_metadata=flatten_metadata
         )
 
         self.shipping_lines_writer = ShippingLinesWriter(
@@ -480,21 +491,24 @@ class OrdersWriter(ResultWriter):
             extraction_time,
             additional_pk=["order_id"],
             file_headers=file_headers,
-            prefix="order__"
+            prefix="order__",
+            flatten_metadata=flatten_metadata
         )
         self.order_meta_data_writer = MetadataWriter(
             result_dir_path,
             extraction_time,
             additional_pk=["order_id"],
             file_headers=file_headers,
-            prefix="order__"
+            prefix="order__",
+            flatten_metadata=flatten_metadata
         )
         self.coupon_lines_writer = CouponLinesWriter(
             result_dir_path,
             extraction_time,
             additional_pk=["order_id"],
             file_headers=file_headers,
-            prefix="order__"
+            prefix="order__",
+            flatten_metadata=flatten_metadata
         )
         self.fee_lines_writer = FeeLinesWriter(
             result_dir_path,
@@ -591,7 +605,8 @@ class OrdersWriter(ResultWriter):
 
 class CustomersWriter(ResultWriter):
     def __init__(
-            self, result_dir_path, result_name, extraction_time, file_headers=None
+            self, result_dir_path, result_name, extraction_time, file_headers=None,
+            flatten_metadata=True
     ):
         super().__init__(
             result_dir_path,
@@ -610,7 +625,8 @@ class CustomersWriter(ResultWriter):
             extraction_time,
             additional_pk=["customer_id"],
             file_headers=file_headers,
-            prefix="customer__"
+            prefix="customer__",
+            flatten_metadata=flatten_metadata
         )
         self.extraction_time = extraction_time
         self.user_value_cols = ["extraction_time"]
@@ -663,7 +679,8 @@ class ProductsWriter(ResultWriter):
             extraction_time,
             prefix="",
             file_headers=None,
-            client=None
+            client=None,
+            flatten_metadata=True
     ):
         self.client = client
         pk = ["id"]
@@ -752,7 +769,8 @@ class ProductsWriter(ResultWriter):
             extraction_time,
             additional_pk=["product_id"],
             file_headers=file_headers,
-            prefix="product__"
+            prefix="product__",
+            flatten_metadata=flatten_metadata
         )
 
     def write(

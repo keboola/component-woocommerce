@@ -27,6 +27,9 @@ KEY_INCREMENTAL = "load_type"
 KEY_FETCHING_MODE = "fetching_mode"
 KEY_CUSTOM_INCREMENTAL_FIELD = "custom_incremental_field"
 KEY_CUSTOM_INCREMENTAL_VALUE = "custom_incremental_value"
+# params for compatibility with old version that had flatten_metadata option which could cause oom
+KEY_ADDITIONAL_OPTIONS = "additional_options"
+KEY_FLATTEN_METADATA = "flatten_metadata_values"
 # #### Keep for debug
 KEY_DEBUG = "debug"
 
@@ -85,6 +88,7 @@ class Component(KBCEnvHandler):
             query_string_auth=self.cfg_params.get(KEY_QUERY_STRING_AUTH, False)
         )
         self.extraction_time = datetime.datetime.now().isoformat()
+        self.flatten_metadata = self.cfg_params.get(KEY_ADDITIONAL_OPTIONS, {}).get(KEY_FLATTEN_METADATA, False)
 
     def run(self):
         """
@@ -163,7 +167,8 @@ class Component(KBCEnvHandler):
                 self.tables_out_path,
                 "order",
                 extraction_time=self.extraction_time,
-                file_headers=file_headers
+                file_headers=file_headers,
+                flatten_metadata=self.flatten_metadata
         ) as writer:
             for data in self.client.get_orders(date_from=start_date, date_to=end_date,
                                                custom_incremental_field=custom_incremental_field,
@@ -182,7 +187,8 @@ class Component(KBCEnvHandler):
                 self.tables_out_path,
                 "customer",
                 extraction_time=self.extraction_time,
-                file_headers=file_headers
+                file_headers=file_headers,
+                flatten_metadata=self.flatten_metadata
         ) as writer:
             for data in self.client.get_customers():
                 try:
@@ -202,6 +208,7 @@ class Component(KBCEnvHandler):
                 prefix="product__",
                 extraction_time=self.extraction_time,
                 file_headers=file_headers,
+                flatten_metadata=self.flatten_metadata,
                 client=self.client
         ) as writer:
             for data in self.client.get_products(
