@@ -23,12 +23,13 @@ DATE_FROM = "date_from"
 DATE_TO = "date_to"
 ENDPOINT = "endpoint"
 KEY_INCREMENTAL = "load_type"
-KEY_ADDITIONAL_OPTIONS = "additional_options"
-KEY_FLATTEN_METADATA = "flatten_metadata_values"
 
 KEY_FETCHING_MODE = "fetching_mode"
 KEY_CUSTOM_INCREMENTAL_FIELD = "custom_incremental_field"
 KEY_CUSTOM_INCREMENTAL_VALUE = "custom_incremental_value"
+# params for compatibility with old version that had flatten_metadata option which could cause oom
+KEY_ADDITIONAL_OPTIONS = "additional_options"
+KEY_FLATTEN_METADATA = "flatten_metadata_values"
 # #### Keep for debug
 KEY_DEBUG = "debug"
 
@@ -87,7 +88,11 @@ class Component(KBCEnvHandler):
             query_string_auth=self.cfg_params.get(KEY_QUERY_STRING_AUTH, False)
         )
         self.extraction_time = datetime.datetime.now().isoformat()
-        self.flatten_metadata = self.cfg_params.get(KEY_ADDITIONAL_OPTIONS, {}).get(KEY_FLATTEN_METADATA, True)
+        self.flatten_metadata = self.cfg_params.get(KEY_ADDITIONAL_OPTIONS, {}).get(KEY_FLATTEN_METADATA, False)
+        if self.flatten_metadata:
+            logging.warning("The component has been started with flatten metadata param set to true. This legacy "
+                            "option can cause oom error in some cases. Please consider turning this off and processing "
+                            "extracted data using Keboola transformations.")
 
     def run(self):
         """
