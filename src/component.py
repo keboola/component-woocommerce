@@ -15,8 +15,6 @@ from kbc.env_handler import KBCEnvHandler
 from result import OrdersWriter, CustomersWriter, ProductsWriter
 from woocommerce_cli import WooCommerceClient, error_handling
 
-# Increase CSV field size limit to handle large fields (e.g., product descriptions)
-# Default limit is 131072 bytes (128 KB), which can be exceeded by WooCommerce data
 csv.field_size_limit(sys.maxsize)
 
 # configuration variables
