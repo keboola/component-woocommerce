@@ -56,9 +56,11 @@ def retry_after_wait_gen(**kwargs):
     # This is called in an except block so we can retrieve the exception
     # and check it.
     exc_info = sys.exc_info()
-    if not exc_info[1].response:
-        return 0
-    resp = exc_info[1].response
+    exc = exc_info[1]
+    if exc is None or not hasattr(exc, 'response') or not exc.response:
+        yield 0
+        return
+    resp = exc.response
     # Retry-After is an undocumented header. But honoring
     # it was proven to work in our spikes.
     # It's been observed to come through as lowercase, so fallback if not present
