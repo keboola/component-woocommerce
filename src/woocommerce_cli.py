@@ -57,7 +57,7 @@ def retry_after_wait_gen(**kwargs):
     # and check it.
     exc_info = sys.exc_info()
     exc = exc_info[1]
-    if exc is None or not hasattr(exc, 'response') or not exc.response:
+    if exc is None or not hasattr(exc, "response") or not exc.response:
         yield 0
         return
     resp = exc.response
