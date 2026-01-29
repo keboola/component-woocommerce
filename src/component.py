@@ -14,6 +14,7 @@ from kbc.env_handler import KBCEnvHandler
 
 from result import OrdersWriter, CustomersWriter, ProductsWriter
 from woocommerce_cli import WooCommerceClient, error_handling
+from column_sanitizer import process_output_files
 
 csv.field_size_limit(sys.maxsize)
 
@@ -156,6 +157,8 @@ class Component(KBCEnvHandler):
             if endpoint.lower() == "customers":
                 logging.info("Downloading Customers")
                 results.extend(self.download_customers(last_state))
+
+        process_output_files(self.data_path)
 
         # get current columns and store in state
         headers = {}
