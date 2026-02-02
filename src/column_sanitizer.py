@@ -55,7 +55,7 @@ def write_column_mapping(
 
 
 def process_output_files(output_dir: str) -> None:
-    tables_dir = os.path.join(output_dir, "tables")
+    tables_dir = os.path.join(output_dir, "out", "tables")
     if not os.path.exists(tables_dir):
         return
     for filename in os.listdir(tables_dir):
