@@ -1,6 +1,7 @@
 import csv
 import hashlib
 import os
+import re
 from typing import Dict, List
 
 
@@ -10,13 +11,27 @@ HASH_LENGTH = 8
 SUFFIX_LENGTH = 16
 
 
-def sanitize_column_name(name: str) -> str:
+def normalize_column_name(name: str) -> str:
+    normalized = re.sub(r"[^a-zA-Z0-9_]", "_", name)
+    normalized = re.sub(r"_+", "_", normalized)
+    normalized = normalized.strip("_")
+    if normalized and normalized[0].isdigit():
+        normalized = "_" + normalized
+    return normalized
+
+
+def shorten_column_name(name: str) -> str:
     if len(name) <= MAX_COLUMN_LENGTH:
         return name
     name_hash = hashlib.md5(name.encode()).hexdigest()[:HASH_LENGTH]
     prefix = name[:PREFIX_LENGTH]
     suffix = name[-SUFFIX_LENGTH:]
     return f"{prefix}__{name_hash}__{suffix}"
+
+
+def sanitize_column_name(name: str) -> str:
+    normalized = normalize_column_name(name)
+    return shorten_column_name(normalized)
 
 
 def sanitize_csv_columns(
